@@ -3,6 +3,7 @@ from tkinter import filedialog, messagebox
 from src.data_handling.data_loader import load_data
 from src.analysis.peak_statistics import compute_channel_statistics, compute_peak_statistics
 import pandas as pd
+import csv
 
 class DataManager:
     """
@@ -227,5 +228,34 @@ class DataManager:
                         else:
                             f.write(f"{self.channel_mapping[channel]},{time:.6f},{amplitude:.6f},{inter_peak_distances[i-1]:.6f}\n")
             messagebox.showinfo("Success", f"Comprehensive peak data saved to {file_path}")
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred while saving the file: {str(e)}")
+
+    def save_peak_windows(self):
+        """
+        Save all peak windows to a CSV file.
+        Each row represents a peak window, with columns for channel number, peak number, and voltage values.
+        """
+        if self.peak_windows is None or self.data is None:
+            messagebox.showwarning("Warning", "No peak window data available. Please detect peaks first.")
+            return
+
+        file_path = filedialog.asksaveasfilename(defaultextension=".csv",
+                                                 filetypes=[("CSV files", "*.csv")])
+        if not file_path:
+            return
+
+        try:
+            with open(file_path, 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                header = ['Channel', 'Peak Number'] + [f'V{i}' for i in range(len(self.peak_windows[0][0]))]
+                writer.writerow(header)
+
+                for channel, channel_windows in enumerate(self.peak_windows):
+                    for peak_number, window in enumerate(channel_windows):
+                        row = [self.channel_mapping[channel], peak_number] + list(window)
+                        writer.writerow(row)
+
+            messagebox.showinfo("Success", f"Peak windows saved to {file_path}")
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred while saving the file: {str(e)}")

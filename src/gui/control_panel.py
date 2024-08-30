@@ -139,3 +139,10 @@ class ControlPanel(ttk.Frame):
             messagebox.showwarning("Warning", "No peak data available. Please detect peaks first.")
             return
         self.data_manager.save_comprehensive_peak_data()
+
+    def save_peak_windows(self):
+        """Save all peak windows to a CSV file."""
+        if self.data_manager.peak_windows is None:
+            messagebox.showwarning("Warning", "No peak window data available. Please detect peaks first.")
+            return
+        self.data_manager.save_peak_windows()
