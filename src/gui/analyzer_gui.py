@@ -65,8 +65,10 @@ class ElectrophysiologyAnalyzer(tk.Tk):
         menubar.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="Load Data", command=self.load_data)
         file_menu.add_command(label="Save Statistics", command=self.save_statistics)
-        file_menu.add_command(label="Save Comprehensive Peak Data", command=self.save_comprehensive_peak_data)
-        file_menu.add_command(label="Save Peak Windows", command=self.save_peak_windows)
+        file_menu.add_command(label="Save Peak Data", command=self.save_comprehensive_peak_data)
+        file_menu.add_command(label="Save Peak Waveforms", command=self.save_peak_windows)
+        file_menu.add_separator()
+        file_menu.add_command(label="Clear All Data", command=self.clear_all_data)  # Add this line
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.quit)
 
@@ -105,6 +107,9 @@ class ElectrophysiologyAnalyzer(tk.Tk):
 
     def save_peak_windows(self):
         self.control_panel.save_peak_windows()
+
+    def clear_all_data(self):
+        self.control_panel.clear_all_data()
 
     def show_about(self):
         about_text = """

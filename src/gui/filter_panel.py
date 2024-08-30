@@ -5,17 +5,32 @@ from src.analysis.artifact_detection import detect_artifacts_all_channels
 import numpy as np
 
 class FilterPanel(ttk.Frame):
+    """
+    A panel for applying filters, detecting artifacts, and detecting peaks in electrophysiology data.
+
+    This panel is a child of ttk.Frame and provides user interface elements for various data processing operations.
+    """
+
     def __init__(self, parent, data_manager, update_callback):
+        """
+        Initialize the FilterPanel.
+
+        Args:
+            parent: The parent widget.
+            data_manager: An object that manages the electrophysiology data.
+            update_callback: A function to call when the data is updated.
+        """
         super().__init__(parent, style="Dark.TFrame")
         self.data_manager = data_manager
         self.update_callback = update_callback
         self.create_widgets()
 
     def create_widgets(self):
+        """Create and arrange all widgets within the FilterPanel."""
         # Sampling rate
         sr_frame = ttk.Frame(self, style="Dark.TFrame")
         sr_frame.pack(fill=tk.X, pady=5)
-        sr_label = ttk.Label(sr_frame, text="Sampling Rate (Hz):", style="Dark.TLabel")
+        sr_label = ttk.Label(sr_frame, text="Sampling Rate (Samples/s):", style="Dark.TLabel")
         sr_label.pack(side=tk.LEFT)
         self.sr_entry = ttk.Entry(sr_frame, width=10, style="Dark.TEntry", font=("Arial", 14))
         self.sr_entry.pack(side=tk.RIGHT)
@@ -88,6 +103,12 @@ class FilterPanel(ttk.Frame):
         peak_button.pack(fill=tk.X, pady=5)
 
     def apply_filter(self, filter_type):
+        """
+        Apply the specified filter to the data.
+
+        Args:
+            filter_type (str): The type of filter to apply ('notch', 'lowpass', or 'highpass').
+        """
         if self.data_manager.data is None:
             messagebox.showerror("Error", "Please load data first.")
             return
@@ -106,17 +127,24 @@ class FilterPanel(ttk.Frame):
             messagebox.showerror("Error", f"Invalid {filter_type} frequency.")
 
     def detect_artifacts(self):
+        """Detect artifacts in the data using the specified threshold."""
         if self.data_manager.data is None:
             messagebox.showerror("Error", "Please load data first.")
             return
         try:
             threshold = float(self.artifact_entry.get())
             self.data_manager.artifacts = detect_artifacts_all_channels(self.data_manager.data, threshold=threshold)
+            
+            # Ensure artifacts array has the same number of time points as the data
+            if self.data_manager.artifacts.shape[0] != self.data_manager.data.shape[0]:
+                messagebox.showwarning("Warning", "Artifact detection result doesn't match data dimensions. Artifacts may not be displayed correctly.")
+            
             self.update_callback()
         except ValueError:
             messagebox.showerror("Error", "Invalid artifact threshold.")
 
     def detect_peaks(self):
+        """Detect peaks in the data using the specified threshold and polarity."""
         if self.data_manager.data is None:
             messagebox.showerror("Error", "Please load data first.")
             return
@@ -155,4 +183,10 @@ class FilterPanel(ttk.Frame):
             messagebox.showerror("Error", f"An error occurred during peak detection: {str(e)}")
 
     def get_sampling_rate(self):
+        """
+        Get the current sampling rate from the entry widget.
+
+        Returns:
+            float: The sampling rate in Hz.
+        """
         return float(self.sr_entry.get())

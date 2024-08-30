@@ -259,3 +259,18 @@ class DataManager:
             messagebox.showinfo("Success", f"Peak windows saved to {file_path}")
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred while saving the file: {str(e)}")
+
+    def clear_all_data(self):
+        """Clear all data and statistics."""
+        self.data = None
+        self.time = None
+        self.sampling_rate = None
+        self.artifacts = None
+        self.peaks = None
+        self.peak_windows = None
+        self.avg_peak_windows = None
+        self.channel_mapping = []
+        self.channel_statistics = None
+        self.peak_statistics = None
+        self.selected_channels = []
+        self.update_callback()

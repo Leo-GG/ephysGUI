@@ -146,3 +146,12 @@ class ControlPanel(ttk.Frame):
             messagebox.showwarning("Warning", "No peak window data available. Please detect peaks first.")
             return
         self.data_manager.save_peak_windows()
+
+    def clear_all_data(self):
+        """Clear all data and statistics after user confirmation."""
+        confirm = messagebox.askyesno("Confirm Clear", "Are you sure you want to clear all data and statistics? This action cannot be undone.")
+        if confirm:
+            self.data_manager.clear_all_data()
+            self.channel_panel.update_channel_list()
+            self.statistics_panel.clear_statistics()
+            messagebox.showinfo("Info", "All data and statistics have been cleared.")

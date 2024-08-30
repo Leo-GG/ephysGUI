@@ -28,18 +28,54 @@ def apply_filter(data, lowcut=0.5, highcut=50, fs=1000, order=5):
     return filtered_data
 
 def apply_notch_filter(data, fs, freq, q=30):
+    """
+    Apply a notch filter to remove a specific frequency from the data.
+
+    Args:
+    data (numpy.ndarray): 2D array of voltage data (samples x channels)
+    fs (float): Sampling frequency in Hz
+    freq (float): Frequency to be removed in Hz
+    q (float): Quality factor. Default is 30.
+
+    Returns:
+    numpy.ndarray: Filtered data
+    """
     nyq = 0.5 * fs
     freq = freq / nyq
     b, a = signal.iirnotch(freq, q)
     return signal.filtfilt(b, a, data, axis=0)
 
-def apply_lowpass_filter(data, fs, freq, order=5):
+def apply_lowpass_filter(data, fs, freq, order=2):
+    """
+    Apply a lowpass filter to the data.
+
+    Args:
+    data (numpy.ndarray): 2D array of voltage data (samples x channels)
+    fs (float): Sampling frequency in Hz
+    freq (float): Cutoff frequency in Hz
+    order (int): Filter order. Default is 5.
+
+    Returns:
+    numpy.ndarray: Filtered data
+    """
     nyq = 0.5 * fs
     normal_cutoff = freq / nyq
     b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
     return signal.filtfilt(b, a, data, axis=0)
 
-def apply_highpass_filter(data, fs, freq, order=5):
+def apply_highpass_filter(data, fs, freq, order=2):
+    """
+    Apply a highpass filter to the data.
+
+    Args:
+    data (numpy.ndarray): 2D array of voltage data (samples x channels)
+    fs (float): Sampling frequency in Hz
+    freq (float): Cutoff frequency in Hz
+    order (int): Filter order. Default is 5.
+
+    Returns:
+    numpy.ndarray: Filtered data
+    """
     nyq = 0.5 * fs
     normal_cutoff = freq / nyq
     b, a = signal.butter(order, normal_cutoff, btype='high', analog=False)
