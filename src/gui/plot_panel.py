@@ -73,7 +73,7 @@ class PlotPanel(ttk.Frame):
         if data_dict['data'] is not None:
             selected_channels = data_dict['selected_channels']
             for i, channel_index in enumerate(selected_channels):
-                self.ax1.plot(data_dict['time'], data_dict['data'][:, i], label=f'Channel {channel_index+1}')
+                self.ax1.plot(data_dict['time'], data_dict['data'][:, i], label=f'Channel {channel_index}')
             
             if data_dict['artifacts'] is not None:
                 for i, channel_index in enumerate(selected_channels):
@@ -90,7 +90,7 @@ class PlotPanel(ttk.Frame):
                     avg_window = data_dict['avg_peak_windows'][i]
                     if avg_window is not None:
                         window_time = np.linspace(-50, 50, len(avg_window))
-                        self.ax2.plot(window_time, avg_window, label=f'Channel {channel_index+1}')
+                        self.ax2.plot(window_time, avg_window, label=f'Channel {channel_index}')
         
         for ax in [self.ax1, self.ax2]:
             ax.spines['right'].set_visible(False)
