@@ -52,7 +52,7 @@ class ElectrophysiologyAnalyzer(tk.Tk):
         self.control_panel = ControlPanel(main_frame)
         self.control_panel.pack(side=tk.LEFT, fill=tk.Y)
 
-        # The PlotPanel is now created inside the ControlPanel
+        # The PlotPanel and StatisticsPanel are now created inside the ControlPanel
 
 if __name__ == "__main__":
     app = ElectrophysiologyAnalyzer()

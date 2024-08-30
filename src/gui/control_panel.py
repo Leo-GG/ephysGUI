@@ -5,6 +5,8 @@ from src.analysis.signal_processing import apply_notch_filter, apply_lowpass_fil
 from src.analysis.artifact_detection import detect_artifacts_all_channels
 import numpy as np
 from .plot_panel import PlotPanel
+from src.analysis.peak_statistics import compute_peak_statistics
+from .statistics_panel import StatisticsPanel
 
 class ControlPanel(ttk.Frame):
     """
@@ -38,7 +40,10 @@ class ControlPanel(ttk.Frame):
 
         self.plot_panel = PlotPanel(parent)
         self.plot_panel.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
-
+        
+        self.statistics_panel = StatisticsPanel(parent)
+        self.statistics_panel.pack(side=tk.RIGHT, fill=tk.Y)
+        
         self.data = None
         self.time = None
         self.sampling_rate = None
@@ -159,6 +164,7 @@ class ControlPanel(ttk.Frame):
         if file_path:
             self.data, self.time = load_data(file_path)
             self.sampling_rate = float(self.sr_entry.get())
+            self.time=self.time/self.sampling_rate
             self.update_channel_list()
             self.update_callback()
 
@@ -238,6 +244,10 @@ class ControlPanel(ttk.Frame):
                 else:
                     self.avg_peak_windows.append(None)
             
+            # Compute peak statistics
+            self.peak_statistics = compute_peak_statistics(self.data, self.peaks, self.time)
+            self.statistics_panel.update_statistics(self.peak_statistics)
+            
             self.update_callback()
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred during peak detection: {str(e)}")
@@ -256,7 +266,8 @@ class ControlPanel(ttk.Frame):
             'peaks': self.peaks,
             'peak_windows': self.peak_windows,
             'avg_peak_windows': self.avg_peak_windows,
-            'selected_channels': self.get_selected_channels()
+            'selected_channels': self.get_selected_channels(),
+            'peak_statistics': self.peak_statistics if hasattr(self, 'peak_statistics') else None
         }
 
     def get_selected_channels(self):
