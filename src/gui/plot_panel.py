@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import numpy as np
 
 class PlotPanel(ttk.Frame):
@@ -9,6 +9,18 @@ class PlotPanel(ttk.Frame):
         super().__init__(parent)
         self.fig, self.canvas = self.create_plot()
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        
+        # Add the matplotlib toolbar
+        self.toolbar = NavigationToolbar2Tk(self.canvas, self)
+        self.toolbar.update()
+        self.toolbar.pack(side=tk.BOTTOM, fill=tk.X)
+
+        # Configure toolbar style
+        self.toolbar.config(background='black')
+        self.toolbar._message_label.config(background='black', foreground='white')
+        for button in self.toolbar.winfo_children():
+            if isinstance(button, tk.Button):
+                button.config(background='#333333', foreground='white')
 
     def create_plot(self):
         fig = plt.figure(figsize=(10, 8), dpi=100, facecolor='black')
@@ -83,3 +95,4 @@ class PlotPanel(ttk.Frame):
             ax.legend(fontsize=10, facecolor='black', edgecolor='white', labelcolor='white')
         
         self.canvas.draw()
+        self.toolbar.update()
