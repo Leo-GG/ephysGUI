@@ -72,24 +72,25 @@ class PlotPanel(ttk.Frame):
         
         if data_dict['data'] is not None:
             selected_channels = data_dict['selected_channels']
-            for i in selected_channels:
-                self.ax1.plot(data_dict['time'], data_dict['data'][:, i], label=f'Channel {i+1}')
+            for i, channel_index in enumerate(selected_channels):
+                self.ax1.plot(data_dict['time'], data_dict['data'][:, i], label=f'Channel {channel_index+1}')
             
             if data_dict['artifacts'] is not None:
-                for i in selected_channels:
+                for i, channel_index in enumerate(selected_channels):
                     artifact_mask = data_dict['artifacts'][:, i]
                     self.ax1.plot(data_dict['time'][artifact_mask], data_dict['data'][artifact_mask, i], 'rx')
             
             if data_dict['peaks'] is not None:
-                for i, channel_peaks in enumerate(data_dict['peaks']):
-                    if i in selected_channels:
-                        self.ax1.plot(data_dict['time'][channel_peaks], data_dict['data'][channel_peaks, i], 'go')
+                for i, channel_index in enumerate(selected_channels):
+                    channel_peaks = data_dict['peaks'][i]
+                    self.ax1.plot(data_dict['time'][channel_peaks], data_dict['data'][channel_peaks, i], 'go')
             
             if data_dict['avg_peak_windows'] is not None:
-                for i, avg_window in enumerate(data_dict['avg_peak_windows']):
-                    if i in selected_channels and avg_window is not None:
+                for i, channel_index in enumerate(selected_channels):
+                    avg_window = data_dict['avg_peak_windows'][i]
+                    if avg_window is not None:
                         window_time = np.linspace(-50, 50, len(avg_window))
-                        self.ax2.plot(window_time, avg_window, label=f'Channel {i+1}')
+                        self.ax2.plot(window_time, avg_window, label=f'Channel {channel_index+1}')
         
         for ax in [self.ax1, self.ax2]:
             ax.spines['right'].set_visible(False)
