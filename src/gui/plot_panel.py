@@ -11,20 +11,29 @@ class PlotPanel(ttk.Frame):
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
     def create_plot(self):
-        fig = plt.figure(figsize=(10, 8), dpi=100)
+        fig = plt.figure(figsize=(10, 8), dpi=100, facecolor='black')
         canvas = FigureCanvasTkAgg(fig, master=self)
         
         # Create subplots with fixed positions
         self.ax1 = fig.add_axes([0.1, 0.55, 0.8, 0.35])  # [left, bottom, width, height]
         self.ax2 = fig.add_axes([0.1, 0.1, 0.8, 0.35])
         
-        self.ax1.set_title("Electrophysiology Data", fontsize=12, fontweight='bold')
-        self.ax1.set_xlabel("Time (s)")
-        self.ax1.set_ylabel("Voltage (mV)")
+        for ax in [self.ax1, self.ax2]:
+            ax.set_facecolor('black')
+            ax.spines['right'].set_visible(False)
+            ax.spines['top'].set_visible(False)
+            ax.spines['bottom'].set_color('white')
+            ax.spines['left'].set_color('white')
+            ax.tick_params(axis='x', colors='white')
+            ax.tick_params(axis='y', colors='white')
         
-        self.ax2.set_title("Average Peak Window", fontsize=12, fontweight='bold')
-        self.ax2.set_xlabel("Time (ms)")
-        self.ax2.set_ylabel("Voltage (mV)")
+        self.ax1.set_title("Electrophysiology Data", fontsize=14, fontweight='bold', color='white')
+        self.ax1.set_xlabel("Time (s)", fontsize=12, color='white')
+        self.ax1.set_ylabel("Voltage (mV)", fontsize=12, color='white')
+        
+        self.ax2.set_title("Average Peak Window", fontsize=14, fontweight='bold', color='white')
+        self.ax2.set_xlabel("Time (ms)", fontsize=12, color='white')
+        self.ax2.set_ylabel("Voltage (mV)", fontsize=12, color='white')
         
         return fig, canvas
 
@@ -32,13 +41,16 @@ class PlotPanel(ttk.Frame):
         self.ax1.clear()
         self.ax2.clear()
         
-        self.ax1.set_title("Electrophysiology Data", fontsize=12, fontweight='bold')
-        self.ax1.set_xlabel("Time (s)")
-        self.ax1.set_ylabel("Voltage (mV)")
+        self.ax1.set_facecolor('black')
+        self.ax2.set_facecolor('black')
         
-        self.ax2.set_title("Average Peak Window", fontsize=12, fontweight='bold')
-        self.ax2.set_xlabel("Time (ms)")
-        self.ax2.set_ylabel("Voltage (mV)")
+        self.ax1.set_title("Electrophysiology Data", fontsize=14, fontweight='bold', color='white')
+        self.ax1.set_xlabel("Time (s)", fontsize=12, color='white')
+        self.ax1.set_ylabel("Voltage (mV)", fontsize=12, color='white')
+        
+        self.ax2.set_title("Average Peak Window", fontsize=14, fontweight='bold', color='white')
+        self.ax2.set_xlabel("Time (ms)", fontsize=12, color='white')
+        self.ax2.set_ylabel("Voltage (mV)", fontsize=12, color='white')
         
         if data_dict['data'] is not None:
             selected_channels = data_dict['selected_channels']
@@ -61,7 +73,13 @@ class PlotPanel(ttk.Frame):
                         window_time = np.linspace(-50, 50, len(avg_window))
                         self.ax2.plot(window_time, avg_window, label=f'Channel {i+1}')
         
-        self.ax1.legend()
-        self.ax2.legend()
+        for ax in [self.ax1, self.ax2]:
+            ax.spines['right'].set_visible(False)
+            ax.spines['top'].set_visible(False)
+            ax.spines['bottom'].set_color('white')
+            ax.spines['left'].set_color('white')
+            ax.tick_params(axis='x', colors='white')
+            ax.tick_params(axis='y', colors='white')
+            ax.legend(fontsize=10, facecolor='black', edgecolor='white', labelcolor='white')
         
         self.canvas.draw()
