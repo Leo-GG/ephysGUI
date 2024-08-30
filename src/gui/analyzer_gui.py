@@ -96,10 +96,7 @@ class ElectrophysiologyAnalyzer(tk.Tk):
         self.control_panel.load_data()
 
     def save_statistics(self):
-        if not hasattr(self.control_panel, 'channel_statistics'):
-            messagebox.showwarning("Warning", "No statistics available to save.")
-        else:
-            self.control_panel.save_statistics_to_excel()
+        self.control_panel.save_statistics_to_excel()
 
     def show_about(self):
         about_text = """
