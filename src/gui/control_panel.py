@@ -7,6 +7,7 @@ import numpy as np
 from .plot_panel import PlotPanel
 from src.analysis.peak_statistics import compute_peak_statistics, compute_channel_statistics
 from .statistics_panel import StatisticsPanel
+import pandas as pd
 
 class ControlPanel(ttk.Frame):
     """
@@ -38,7 +39,7 @@ class ControlPanel(ttk.Frame):
         super().__init__(parent, style="Dark.TFrame", width=250)
         self.pack_propagate(False)
 
-        self.plot_panel = PlotPanel(parent)
+        self.plot_panel = PlotPanel(parent, self.update_trim_button)
         self.plot_panel.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
         
         self.statistics_panel = StatisticsPanel(parent)
@@ -51,20 +52,23 @@ class ControlPanel(ttk.Frame):
         self.peaks = None
         self.peak_windows = None
         self.avg_peak_windows = None
+        self.channel_mapping = []  # Add this line to store original channel numbers
 
         self.create_widgets()
 
     def create_widgets(self):
         """Create and arrange the control widgets."""
         self.configure(style="Dark.TFrame")
-        self.create_load_button()
         self.create_filter_options()
         self.create_channel_selection()
 
-    def create_load_button(self):
-        """Create the 'Load Data' button."""
-        load_button = ttk.Button(self, text="Load Data", command=self.load_data, style="Dark.TButton")
-        load_button.pack(fill=tk.X, pady=(0, 20))
+        # Add Toggle Span Selector button
+        self.toggle_span_button = ttk.Button(self, text="Toggle Span Selector", command=self.toggle_span_selector, style="Dark.TButton")
+        self.toggle_span_button.pack(fill=tk.X, pady=5)
+
+        # Add Trim Data button
+        self.trim_button = ttk.Button(self, text="Trim Data", command=self.trim_data, style="Dark.TButton", state=tk.DISABLED)
+        self.trim_button.pack(fill=tk.X, pady=5)
 
     def create_filter_options(self):
         """Create widgets for filter options, artifact detection, and peak detection."""
@@ -147,7 +151,7 @@ class ControlPanel(ttk.Frame):
         peak_button.pack(fill=tk.X, pady=5)
 
     def create_channel_selection(self):
-        """Create the channel selection listbox."""
+        """Create the channel selection listbox and delete buttons."""
         channel_frame = ttk.Frame(self, style="Dark.TFrame")
         channel_frame.pack(fill=tk.BOTH, expand=True)
 
@@ -158,6 +162,114 @@ class ControlPanel(ttk.Frame):
         self.channel_listbox.pack(fill=tk.BOTH, expand=True)
         self.channel_listbox.bind("<<ListboxSelect>>", lambda event: self.update_callback())
 
+        # Add Delete Channel button
+        self.delete_channel_button = ttk.Button(channel_frame, text="Delete Selected Channels", command=self.delete_selected_channels, style="Dark.TButton")
+        self.delete_channel_button.pack(fill=tk.X, pady=5)
+
+        # Add Keep Selected Channels button
+        self.keep_selected_button = ttk.Button(channel_frame, text="Keep Only Selected Channels", command=self.keep_selected_channels, style="Dark.TButton")
+        self.keep_selected_button.pack(fill=tk.X, pady=5)
+
+    def update_channel_list(self):
+        """Update the channel listbox with the available channels."""
+        self.channel_listbox.delete(0, tk.END)
+        for i, original_channel in enumerate(self.channel_mapping):
+            self.channel_listbox.insert(tk.END, f"Channel {original_channel}")
+
+    def delete_selected_channels(self):
+        """Delete the selected channels and update the data."""
+        selected_indices = self.channel_listbox.curselection()
+        if not selected_indices:
+            messagebox.showwarning("Warning", "Please select at least one channel to delete.")
+            return
+
+        confirm = messagebox.askyesno("Confirm Delete", "Are you sure you want to delete the selected channels? This action cannot be undone.")
+        if not confirm:
+            return
+
+        # Convert to list and sort in descending order to avoid index issues when deleting
+        selected_indices = sorted(list(selected_indices), reverse=True)
+
+        # Delete channels from data and related arrays
+        for index in selected_indices:
+            self.data = np.delete(self.data, index, axis=1)
+            if self.artifacts is not None:
+                self.artifacts = np.delete(self.artifacts, index, axis=1)
+            if self.peaks is not None:
+                del self.peaks[index]
+            if self.peak_windows is not None:
+                del self.peak_windows[index]
+            if self.avg_peak_windows is not None:
+                del self.avg_peak_windows[index]
+            del self.channel_mapping[index]  # Remove the channel from mapping
+
+        # Update channel list and statistics
+        self.update_channel_list()
+        self.channel_statistics = compute_channel_statistics(self.data)
+        if self.peaks is not None:
+            self.peak_statistics = compute_peak_statistics(self.data, self.peaks, self.time)
+        else:
+            self.peak_statistics = None
+
+        self.statistics_panel.update_statistics(
+            channel_statistics=self.channel_statistics,
+            peak_statistics=self.peak_statistics,
+            channel_mapping=self.channel_mapping
+        )
+        self.update_callback()
+
+        messagebox.showinfo("Info", "Selected channels have been deleted successfully.")
+
+    def keep_selected_channels(self):
+        """Delete all channels except the selected ones."""
+        selected_indices = self.channel_listbox.curselection()
+        if not selected_indices:
+            messagebox.showwarning("Warning", "Please select at least one channel to keep.")
+            return
+
+        confirm = messagebox.askyesno("Confirm Keep", "Are you sure you want to keep only the selected channels? This action cannot be undone.")
+        if not confirm:
+            return
+
+        # Convert to set for faster lookup
+        selected_indices_set = set(selected_indices)
+
+        # Identify indices to delete (all except selected)
+        indices_to_delete = [i for i in range(self.data.shape[1]) if i not in selected_indices_set]
+
+        # Sort in descending order to avoid index issues when deleting
+        indices_to_delete.sort(reverse=True)
+
+        # Delete channels from data and related arrays
+        for index in indices_to_delete:
+            self.data = np.delete(self.data, index, axis=1)
+            if self.artifacts is not None:
+                self.artifacts = np.delete(self.artifacts, index, axis=1)
+            if self.peaks is not None:
+                del self.peaks[index]
+            if self.peak_windows is not None:
+                del self.peak_windows[index]
+            if self.avg_peak_windows is not None:
+                del self.avg_peak_windows[index]
+            del self.channel_mapping[index]  # Remove the channel from mapping
+
+        # Update channel list and statistics
+        self.update_channel_list()
+        self.channel_statistics = compute_channel_statistics(self.data)
+        if self.peaks is not None:
+            self.peak_statistics = compute_peak_statistics(self.data, self.peaks, self.time)
+        else:
+            self.peak_statistics = None
+
+        self.statistics_panel.update_statistics(
+            channel_statistics=self.channel_statistics,
+            peak_statistics=self.peak_statistics,
+            channel_mapping=self.channel_mapping
+        )
+        self.update_callback()
+
+        messagebox.showinfo("Info", "All channels except the selected ones have been deleted successfully.")
+
     def load_data(self):
         """Load data from a file and update the channel list."""
         file_path = filedialog.askopenfilename(filetypes=[("NumPy files", "*.npy")])
@@ -165,19 +277,17 @@ class ControlPanel(ttk.Frame):
             self.data, self.time = load_data(file_path)
             self.sampling_rate = float(self.sr_entry.get())
             self.time = self.time / self.sampling_rate
+            self.channel_mapping = list(range(1, self.data.shape[1] + 1))  # Initialize channel mapping
             self.update_channel_list()
             
             # Compute and display channel statistics
             self.channel_statistics = compute_channel_statistics(self.data)
-            self.statistics_panel.update_statistics(channel_statistics=self.channel_statistics)
+            self.statistics_panel.update_statistics(
+                channel_statistics=self.channel_statistics,
+                channel_mapping=self.channel_mapping
+            )
             
             self.update_callback()
-
-    def update_channel_list(self):
-        """Update the channel listbox with the available channels."""
-        self.channel_listbox.delete(0, tk.END)
-        for i in range(self.data.shape[1]):
-            self.channel_listbox.insert(tk.END, f"Channel {i+1}")
 
     def apply_filter(self, filter_type):
         """
@@ -251,7 +361,10 @@ class ControlPanel(ttk.Frame):
             
             # Compute peak statistics
             self.peak_statistics = compute_peak_statistics(self.data, self.peaks, self.time)
-            self.statistics_panel.update_statistics(peak_statistics=self.peak_statistics)
+            self.statistics_panel.update_statistics(
+                peak_statistics=self.peak_statistics,
+                channel_mapping=self.channel_mapping
+            )
             
             self.update_callback()
         except Exception as e:
@@ -282,8 +395,103 @@ class ControlPanel(ttk.Frame):
         Returns:
             list: List of indices of the selected channels.
         """
-        return [i for i in self.channel_listbox.curselection()]
+        return [self.channel_mapping[i] - 1 for i in self.channel_listbox.curselection()]
 
     def update_callback(self, event=None):
         data_dict = self.get_data()
         self.plot_panel.update_plot(data_dict)
+
+    def toggle_span_selector(self):
+        self.plot_panel.toggle_span_selector()
+        if self.plot_panel.span_selector_active:
+            self.toggle_span_button.config(text="Disable Span Selector")
+        else:
+            self.toggle_span_button.config(text="Enable Span Selector")
+
+    def update_trim_button(self, selected_range):
+        self.selected_range = selected_range
+        self.trim_button.config(state=tk.NORMAL if selected_range is not None else tk.DISABLED)
+
+    def trim_data(self):
+        if self.selected_range is None:
+            messagebox.showwarning("Warning", "Please select a range first.")
+            return
+
+        confirm = messagebox.askyesno("Confirm Trim", "Are you sure you want to trim the data? This action cannot be undone.")
+        if confirm:
+            start_idx = np.searchsorted(self.time, self.selected_range[0])
+            end_idx = np.searchsorted(self.time, self.selected_range[1])
+
+            self.data = self.data[start_idx:end_idx]
+            self.time = self.time[start_idx:end_idx]
+
+            if self.artifacts is not None:
+                self.artifacts = self.artifacts[start_idx:end_idx]
+
+            if self.peaks is not None:
+                self.peaks = [np.array([p for p in channel_peaks if start_idx <= p < end_idx]) - start_idx for channel_peaks in self.peaks]
+            else:
+                self.peaks = None
+
+            if self.peak_windows is not None:
+                self.peak_windows = [windows[np.logical_and(start_idx <= peaks, peaks < end_idx)] for windows, peaks in zip(self.peak_windows, self.peaks)]
+            else:
+                self.peak_windows = None
+
+            if self.avg_peak_windows is not None:
+                # Recalculate average peak windows if necessary
+                self.avg_peak_windows = [np.mean(windows, axis=0) if len(windows) > 0 else None for windows in self.peak_windows]
+            else:
+                self.avg_peak_windows = None
+
+            # Disable span selector and update plot
+            self.plot_panel.span_selector_active = False
+            self.plot_panel.remove_span_selector()
+            self.toggle_span_button.config(text="Enable Span Selector")
+            self.update_callback()
+
+            # Recompute and update statistics
+            self.channel_statistics = compute_channel_statistics(self.data)
+            if self.peaks is not None:
+                self.peak_statistics = compute_peak_statistics(self.data, self.peaks, self.time)
+            else:
+                self.peak_statistics = None
+            self.statistics_panel.update_statistics(
+                channel_statistics=self.channel_statistics,
+                peak_statistics=self.peak_statistics,
+                channel_mapping=self.channel_mapping
+            )
+
+            messagebox.showinfo("Info", "Data has been trimmed successfully.")
+
+    def save_statistics_to_excel(self):
+        """Save the current statistics to an Excel file."""
+        if not hasattr(self, 'channel_statistics'):
+            messagebox.showwarning("Warning", "No statistics available to save.")
+            return
+
+        file_path = filedialog.asksaveasfilename(defaultextension=".xlsx",
+                                                 filetypes=[("Excel files", "*.xlsx")])
+        if not file_path:
+            return  # User cancelled the file dialog
+
+        try:
+            with pd.ExcelWriter(file_path) as writer:
+                # Save channel statistics
+                channel_df = pd.DataFrame(self.channel_statistics)
+                channel_df['Original Channel'] = self.channel_mapping
+                channel_df = channel_df.set_index('Original Channel')
+                channel_df.to_excel(writer, sheet_name='Channel Statistics')
+
+                # Save peak statistics if available
+                if hasattr(self, 'peak_statistics') and self.peak_statistics:
+                    peak_df = pd.DataFrame(self.peak_statistics)
+                    peak_df['Original Channel'] = self.channel_mapping
+                    peak_df = peak_df.set_index('Original Channel')
+                    peak_df.to_excel(writer, sheet_name='Peak Statistics')
+                else:
+                    messagebox.showwarning("Warning", "No peak statistics available. Only channel statistics will be saved.")
+
+            messagebox.showinfo("Success", f"Statistics saved to {file_path}")
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred while saving the file: {str(e)}")
