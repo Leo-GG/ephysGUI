@@ -13,7 +13,7 @@ def generate_ecg_like_signal(duration, fs):
         qrs = signal.gaussian(2 * qrs_width, std=qrs_width / 5)
         start = max(0, qrs_center - qrs_width)
         end = min(len(ecg), qrs_center + qrs_width)
-        ecg[start:end] -= qrs[:end-start]
+        ecg[start:end] -= 300*qrs[:end-start]
     
     return ecg
 
@@ -63,9 +63,9 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
     
     plt.figure(figsize=(12, 6))
-    t = np.linspace(0, 1, fs)  # Plot first second
-    plt.plot(t, artificial_data[:fs, 0])
-    plt.title("First Second of Artificial Data (Channel 1)")
+    t = np.linspace(0, 1, 10*fs)  # Plot first 10 seconds
+    plt.plot(t, artificial_data[:10*fs, 0])
+    plt.title("First 10 Seconds of Artificial Data (Channel 1)")
     plt.xlabel("Time (s)")
     plt.ylabel("Amplitude (μV)")
     plt.grid(True)
