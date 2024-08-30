@@ -26,7 +26,15 @@ class ElectrophysiologyAnalyzer(tk.Tk):
 
         self.title("Electrophysiology Data Analyzer")
         self.geometry("1200x800")
-        self.configure(bg="#2E2E2E")
+        self.configure(bg="#000000")
+
+        self.style = ttk.Style()
+        self.style.theme_use('default')
+        self.style.configure("Dark.TFrame", background="#000000")
+        self.style.configure("Dark.TButton", background="#333333", foreground="white", font=("Arial", 12))
+        self.style.configure("Dark.TLabel", background="#000000", foreground="white", font=("Arial", 12))
+        self.style.configure("Dark.TEntry", fieldbackground="#333333", foreground="white", font=("Arial", 14))
+        self.style.configure("Dark.TCheckbutton", background="#000000", foreground="white", font=("Arial", 12))
 
         self.create_widgets()
 
@@ -37,7 +45,7 @@ class ElectrophysiologyAnalyzer(tk.Tk):
         This method creates the main frame, initializes the control panel
         and plot panel, and arranges them within the main window.
         """
-        main_frame = ttk.Frame(self, style="Main.TFrame")
+        main_frame = ttk.Frame(self, style="Dark.TFrame")
         main_frame.pack(fill=tk.BOTH, expand=True)
 
         # Create the control panel

@@ -33,7 +33,7 @@ class ControlPanel(ttk.Frame):
             parent (tk.Widget): The parent widget for this panel.
             update_callback (function): Callback function to update the plot.
         """
-        super().__init__(parent, style="Left.TFrame", width=250)
+        super().__init__(parent, style="Dark.TFrame", width=250)
         self.pack_propagate(False)
 
         self.plot_panel = PlotPanel(parent)
@@ -51,80 +51,80 @@ class ControlPanel(ttk.Frame):
 
     def create_widgets(self):
         """Create and arrange the control widgets."""
-        self.configure(style="Left.TFrame")
+        self.configure(style="Dark.TFrame")
         self.create_load_button()
         self.create_filter_options()
         self.create_channel_selection()
 
     def create_load_button(self):
         """Create the 'Load Data' button."""
-        load_button = ttk.Button(self, text="Load Data", command=self.load_data, style="TButton")
+        load_button = ttk.Button(self, text="Load Data", command=self.load_data, style="Dark.TButton")
         load_button.pack(fill=tk.X, pady=(0, 20))
 
     def create_filter_options(self):
         """Create widgets for filter options, artifact detection, and peak detection."""
-        filter_frame = ttk.Frame(self, style="Filter.TFrame")
+        filter_frame = ttk.Frame(self, style="Dark.TFrame")
         filter_frame.pack(fill=tk.X, pady=(0, 20))
 
         # Sampling rate
-        sr_frame = ttk.Frame(filter_frame, style="Filter.TFrame")
+        sr_frame = ttk.Frame(filter_frame, style="Dark.TFrame")
         sr_frame.pack(fill=tk.X, pady=5)
-        sr_label = ttk.Label(sr_frame, text="Sampling Rate (Hz):", style="Text.TLabel")
+        sr_label = ttk.Label(sr_frame, text="Sampling Rate (Hz):", style="Dark.TLabel")
         sr_label.pack(side=tk.LEFT)
-        self.sr_entry = ttk.Entry(sr_frame, width=10, style="Dark.TEntry")
+        self.sr_entry = ttk.Entry(sr_frame, width=10, style="Dark.TEntry", font=("Arial", 14))
         self.sr_entry.pack(side=tk.RIGHT)
         self.sr_entry.insert(0, "20000")
 
         # Notch filter
-        notch_frame = ttk.Frame(filter_frame, style="Filter.TFrame")
+        notch_frame = ttk.Frame(filter_frame, style="Dark.TFrame")
         notch_frame.pack(fill=tk.X, pady=5)
-        notch_label = ttk.Label(notch_frame, text="Notch Filter (Hz):", style="Text.TLabel")
+        notch_label = ttk.Label(notch_frame, text="Notch Filter (Hz):", style="Dark.TLabel")
         notch_label.pack(side=tk.LEFT)
-        self.notch_entry = ttk.Entry(notch_frame, width=10, style="Dark.TEntry")
+        self.notch_entry = ttk.Entry(notch_frame, width=10, style="Dark.TEntry", font=("Arial", 14))
         self.notch_entry.pack(side=tk.RIGHT)
         self.notch_entry.insert(0, "50")
-        notch_button = ttk.Button(filter_frame, text="Apply Notch", command=lambda: self.apply_filter('notch'), style="TButton")
+        notch_button = ttk.Button(filter_frame, text="Apply Notch", command=lambda: self.apply_filter('notch'), style="Dark.TButton")
         notch_button.pack(fill=tk.X, pady=5)
 
         # Low-pass filter
-        lowpass_frame = ttk.Frame(filter_frame, style="Filter.TFrame")
+        lowpass_frame = ttk.Frame(filter_frame, style="Dark.TFrame")
         lowpass_frame.pack(fill=tk.X, pady=5)
-        lowpass_label = ttk.Label(lowpass_frame, text="Low-pass Filter (Hz):", style="Text.TLabel")
+        lowpass_label = ttk.Label(lowpass_frame, text="Low-pass Filter (Hz):", style="Dark.TLabel")
         lowpass_label.pack(side=tk.LEFT)
-        self.lowpass_entry = ttk.Entry(lowpass_frame, width=10, style="Dark.TEntry")
+        self.lowpass_entry = ttk.Entry(lowpass_frame, width=10, style="Dark.TEntry", font=("Arial", 14))
         self.lowpass_entry.pack(side=tk.RIGHT)
         self.lowpass_entry.insert(0, "100")
-        lowpass_button = ttk.Button(filter_frame, text="Apply Low-pass", command=lambda: self.apply_filter('lowpass'), style="TButton")
+        lowpass_button = ttk.Button(filter_frame, text="Apply Low-pass", command=lambda: self.apply_filter('lowpass'), style="Dark.TButton")
         lowpass_button.pack(fill=tk.X, pady=5)
 
         # High-pass filter
-        highpass_frame = ttk.Frame(filter_frame, style="Filter.TFrame")
+        highpass_frame = ttk.Frame(filter_frame, style="Dark.TFrame")
         highpass_frame.pack(fill=tk.X, pady=5)
-        highpass_label = ttk.Label(highpass_frame, text="High-pass Filter (Hz):", style="Text.TLabel")
+        highpass_label = ttk.Label(highpass_frame, text="High-pass Filter (Hz):", style="Dark.TLabel")
         highpass_label.pack(side=tk.LEFT)
-        self.highpass_entry = ttk.Entry(highpass_frame, width=10, style="Dark.TEntry")
+        self.highpass_entry = ttk.Entry(highpass_frame, width=10, style="Dark.TEntry", font=("Arial", 14))
         self.highpass_entry.pack(side=tk.RIGHT)
         self.highpass_entry.insert(0, "1")
-        highpass_button = ttk.Button(filter_frame, text="Apply High-pass", command=lambda: self.apply_filter('highpass'), style="TButton")
+        highpass_button = ttk.Button(filter_frame, text="Apply High-pass", command=lambda: self.apply_filter('highpass'), style="Dark.TButton")
         highpass_button.pack(fill=tk.X, pady=5)
 
         # Artifact detection
-        artifact_frame = ttk.Frame(filter_frame, style="Filter.TFrame")
+        artifact_frame = ttk.Frame(filter_frame, style="Dark.TFrame")
         artifact_frame.pack(fill=tk.X, pady=5)
-        artifact_label = ttk.Label(artifact_frame, text="Artifact Threshold:", style="Text.TLabel")
+        artifact_label = ttk.Label(artifact_frame, text="Artifact Threshold:", style="Dark.TLabel")
         artifact_label.pack(side=tk.LEFT)
-        self.artifact_entry = ttk.Entry(artifact_frame, width=10, style="Dark.TEntry")
+        self.artifact_entry = ttk.Entry(artifact_frame, width=10, style="Dark.TEntry", font=("Arial", 14))
         self.artifact_entry.pack(side=tk.RIGHT)
         self.artifact_entry.insert(0, "5")
-        artifact_button = ttk.Button(filter_frame, text="Detect Artifacts", command=self.detect_artifacts, style="TButton")
+        artifact_button = ttk.Button(filter_frame, text="Detect Artifacts", command=self.detect_artifacts, style="Dark.TButton")
         artifact_button.pack(fill=tk.X, pady=5)
 
         # Peak detection
-        peak_frame = ttk.Frame(filter_frame, style="Filter.TFrame")
+        peak_frame = ttk.Frame(filter_frame, style="Dark.TFrame")
         peak_frame.pack(fill=tk.X, pady=5)
-        peak_label = ttk.Label(peak_frame, text="Peak Threshold:", style="Text.TLabel")
+        peak_label = ttk.Label(peak_frame, text="Peak Threshold:", style="Dark.TLabel")
         peak_label.pack(side=tk.LEFT)
-        self.peak_entry = ttk.Entry(peak_frame, width=10, style="Dark.TEntry")
+        self.peak_entry = ttk.Entry(peak_frame, width=10, style="Dark.TEntry", font=("Arial", 14))
         self.peak_entry.pack(side=tk.RIGHT)
         self.peak_entry.insert(0, "50")
 
@@ -134,22 +134,22 @@ class ControlPanel(ttk.Frame):
             filter_frame,
             text="Detect Positive Peaks",
             variable=self.peak_polarity_var,
-            style="TCheckbutton"
+            style="Dark.TCheckbutton"
         )
         self.peak_polarity_check.pack(fill=tk.X, pady=5)
 
-        peak_button = ttk.Button(filter_frame, text="Detect Peaks", command=self.detect_peaks, style="TButton")
+        peak_button = ttk.Button(filter_frame, text="Detect Peaks", command=self.detect_peaks, style="Dark.TButton")
         peak_button.pack(fill=tk.X, pady=5)
 
     def create_channel_selection(self):
         """Create the channel selection listbox."""
-        channel_frame = ttk.Frame(self, style="Channel.TFrame")
+        channel_frame = ttk.Frame(self, style="Dark.TFrame")
         channel_frame.pack(fill=tk.BOTH, expand=True)
 
-        channel_label = ttk.Label(channel_frame, text="Channels", style="Header.TLabel")
+        channel_label = ttk.Label(channel_frame, text="Channels", style="Dark.TLabel")
         channel_label.pack(pady=(0, 10))
 
-        self.channel_listbox = tk.Listbox(channel_frame, selectmode=tk.MULTIPLE, bg="#1E1E1E", fg="white", font=("Arial", 10))
+        self.channel_listbox = tk.Listbox(channel_frame, selectmode=tk.MULTIPLE, bg="#1E1E1E", fg="white", font=("Arial", 12))
         self.channel_listbox.pack(fill=tk.BOTH, expand=True)
         self.channel_listbox.bind("<<ListboxSelect>>", lambda event: self.update_callback())
 
