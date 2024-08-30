@@ -1,3 +1,6 @@
 
 /src/analysis/__pycache__
 *.pyc
+*.pyc
+*.pyc
+/src/analysis/__pycache__
