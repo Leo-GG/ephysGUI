@@ -5,7 +5,34 @@ from src.analysis.peak_statistics import compute_channel_statistics, compute_pea
 import pandas as pd
 
 class DataManager:
+    """
+    Manages the electrophysiology data and related operations.
+
+    This class handles loading, processing, and storing of electrophysiology data,
+    as well as various statistics and operations on the data.
+
+    Attributes:
+        update_callback (function): Callback function to update the GUI.
+        data (numpy.ndarray): The electrophysiology data.
+        time (numpy.ndarray): Time points corresponding to the data.
+        sampling_rate (float): Sampling rate of the data in Hz.
+        artifacts (numpy.ndarray): Detected artifacts in the data.
+        peaks (list): Detected peaks for each channel.
+        peak_windows (list): Extracted peak windows for each channel.
+        avg_peak_windows (list): Average peak windows for each channel.
+        channel_mapping (list): Mapping of original channel indices to current indices.
+        channel_statistics (dict): Statistics for each channel.
+        peak_statistics (dict): Statistics for detected peaks.
+        selected_channels (list): Currently selected channels for analysis.
+    """
+
     def __init__(self, update_callback):
+        """
+        Initialize the DataManager.
+
+        Args:
+            update_callback (function): Callback function to update the GUI.
+        """
         self.update_callback = update_callback
         self.data = None
         self.time = None
@@ -20,27 +47,42 @@ class DataManager:
         self.selected_channels = []
 
     def load_data(self, sampling_rate):
+        """
+        Load data from a file and initialize related attributes.
+
+        Args:
+            sampling_rate (float): Sampling rate of the data in Hz.
+        """
         file_path = filedialog.askopenfilename(filetypes=[("NumPy files", "*.npy")])
         if file_path:
             self.data, self.time = load_data(file_path)
             self.sampling_rate = sampling_rate
             self.time = self.time / self.sampling_rate
             self.channel_mapping = list(range(self.data.shape[1]))
-            self.selected_channels = self.channel_mapping.copy()  # Initialize selected channels
-            self.update_channel_statistics()  # Compute channel statistics immediately after loading
+            self.selected_channels = self.channel_mapping.copy()
+            self.update_channel_statistics()
             self.update_callback()
 
     def update_channel_statistics(self):
+        """
+        Update the channel statistics if data is available.
+        """
         if self.data is not None:
             self.channel_statistics = compute_channel_statistics(self.data)
         else:
             self.channel_statistics = None
 
     def update_peak_statistics(self):
-        if self.peaks is not None:
-            self.peak_statistics = compute_peak_statistics(self.data, self.peaks, self.time)
+        """
+        Update the peak statistics if peaks are detected.
+        """
+        if self.peaks is not None and self.sampling_rate is not None:
+            self.peak_statistics = compute_peak_statistics(self.data, self.peaks, self.time, self.sampling_rate)
 
     def save_statistics_to_excel(self):
+        """
+        Save channel and peak statistics to an Excel file.
+        """
         if self.channel_statistics is None:
             messagebox.showwarning("Warning", "No statistics available to save.")
             return
@@ -70,6 +112,13 @@ class DataManager:
             messagebox.showerror("Error", f"An error occurred while saving the file: {str(e)}")
 
     def get_data(self):
+        """
+        Get a dictionary containing all the data and related information.
+
+        Returns:
+            dict: A dictionary containing data, time, artifacts, peaks, peak windows,
+                  average peak windows, channel mapping, and selected channels.
+        """
         return {
             'data': self.data,
             'time': self.time,
@@ -82,6 +131,13 @@ class DataManager:
         }
 
     def trim_data(self, start_idx, end_idx):
+        """
+        Trim the data and update related attributes.
+
+        Args:
+            start_idx (int): Starting index for trimming.
+            end_idx (int): Ending index for trimming.
+        """
         self.data = self.data[start_idx:end_idx]
         self.time = self.time[start_idx:end_idx]
 
@@ -108,6 +164,12 @@ class DataManager:
         self.update_callback()
 
     def delete_channels(self, channels_to_delete):
+        """
+        Delete specified channels and update related attributes.
+
+        Args:
+            channels_to_delete (list): List of channel indices to delete.
+        """
         channels_to_delete = sorted(channels_to_delete, reverse=True)
         for channel in channels_to_delete:
             index = self.channel_mapping.index(channel)
@@ -128,5 +190,11 @@ class DataManager:
         self.update_callback()
 
     def keep_channels(self, channels_to_keep):
+        """
+        Keep only specified channels and delete the rest.
+
+        Args:
+            channels_to_keep (list): List of channel indices to keep.
+        """
         channels_to_delete = [ch for ch in self.channel_mapping if ch not in channels_to_keep]
         self.delete_channels(channels_to_delete)
