@@ -126,3 +126,8 @@ class StatisticsPanel(ttk.Frame):
                     f"{stats['mean_inter_peak_time']*1000:.2f}",  # Convert to ms
                     f"{stats['std_inter_peak_time']*1000:.2f}"    # Convert to ms
                 ))
+
+    def clear_statistics(self):
+        """Clear all statistics from the Treeviews."""
+        self.channel_tree.delete(*self.channel_tree.get_children())
+        self.peak_tree.delete(*self.peak_tree.get_children())

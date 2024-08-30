@@ -6,7 +6,22 @@ from matplotlib.widgets import SpanSelector
 import numpy as np
 
 class PlotPanel(ttk.Frame):
+    """
+    A panel for plotting electrophysiology data and average peak windows.
+
+    This panel is a child of ttk.Frame and creates a matplotlib figure with two subplots:
+    one for the main electrophysiology data and another for the average peak windows.
+    It also includes a matplotlib toolbar and a span selector for data trimming.
+    """
+
     def __init__(self, parent, trim_callback):
+        """
+        Initialize the PlotPanel.
+
+        Args:
+            parent: The parent widget.
+            trim_callback: A callback function to be called when the span selector is used.
+        """
         super().__init__(parent)
         self.trim_callback = trim_callback
         self.fig, self.canvas = self.create_plot()
@@ -29,6 +44,12 @@ class PlotPanel(ttk.Frame):
         self.span_selector_active = False
 
     def create_plot(self):
+        """
+        Create the matplotlib figure and canvas.
+
+        Returns:
+            tuple: A tuple containing the matplotlib figure and canvas.
+        """
         fig = plt.figure(figsize=(10, 8), dpi=100, facecolor='black')
         canvas = FigureCanvasTkAgg(fig, master=self)
         
@@ -56,6 +77,12 @@ class PlotPanel(ttk.Frame):
         return fig, canvas
 
     def update_plot(self, data_dict):
+        """
+        Update the plot with new data.
+
+        Args:
+            data_dict (dict): A dictionary containing the data to be plotted.
+        """
         self.ax1.clear()
         self.ax2.clear()
         
@@ -78,7 +105,10 @@ class PlotPanel(ttk.Frame):
             if data_dict['artifacts'] is not None:
                 for i, channel_index in enumerate(selected_channels):
                     artifact_mask = data_dict['artifacts'][:, i]
-                    self.ax1.plot(data_dict['time'][artifact_mask], data_dict['data'][artifact_mask, i], 'rx')
+                    if len(artifact_mask) == len(data_dict['time']):
+                        self.ax1.plot(data_dict['time'][artifact_mask], data_dict['data'][artifact_mask, i], 'rx')
+                    else:
+                        print(f"Warning: Artifact mask for channel {channel_index} doesn't match data dimensions.")
             
             if data_dict['peaks'] is not None:
                 for i, channel_index in enumerate(selected_channels):
@@ -111,6 +141,9 @@ class PlotPanel(ttk.Frame):
             self.remove_span_selector()
 
     def create_span_selector(self):
+        """
+        Create a span selector on the main plot for data trimming.
+        """
         if self.span_selector is None:
             self.span_selector = SpanSelector(
                 self.ax1, self.on_select, 'horizontal', useblit=True,
@@ -120,15 +153,28 @@ class PlotPanel(ttk.Frame):
         self.span_selector.set_visible(True)
 
     def remove_span_selector(self):
+        """
+        Remove the span selector from the main plot.
+        """
         if self.span_selector is not None:
             self.span_selector.set_visible(False)
         self.selected_range = None
 
     def on_select(self, xmin, xmax):
+        """
+        Callback function for the span selector.
+
+        Args:
+            xmin (float): The minimum x-value of the selected range.
+            xmax (float): The maximum x-value of the selected range.
+        """
         self.selected_range = (xmin, xmax)
         self.trim_callback(self.selected_range)
 
     def toggle_span_selector(self):
+        """
+        Toggle the visibility of the span selector.
+        """
         self.span_selector_active = not self.span_selector_active
         if self.span_selector_active:
             self.create_span_selector()
