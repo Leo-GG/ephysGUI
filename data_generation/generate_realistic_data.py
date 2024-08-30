@@ -2,7 +2,16 @@ import numpy as np
 from scipy import signal
 
 def generate_ecg_like_signal(duration, fs):
-    """Generate an ECG-like signal with random variations in amplitude and width."""
+    """
+    Generate an ECG-like signal with random variations in amplitude and width.
+
+    Args:
+    duration (float): Duration of the signal in seconds
+    fs (int): Sampling frequency in Hz
+
+    Returns:
+    numpy.ndarray: 1D array of ECG-like signal
+    """
     t = np.linspace(0, duration, int(duration * fs), endpoint=False)
     ecg = np.zeros_like(t)
     
@@ -13,7 +22,7 @@ def generate_ecg_like_signal(duration, fs):
         qrs = signal.gaussian(2 * qrs_width, std=qrs_width / 5)
         
         # Random amplitude variation around -300
-        amplitude = np.random.uniform(.8, 1.2)*300
+        amplitude = np.random.uniform(0.8, 1.2) * 300
         
         start = max(0, qrs_center - qrs_width)
         end = min(len(ecg), qrs_center + qrs_width)
@@ -34,7 +43,9 @@ def generate_impulsive_noise(num_samples, num_channels, rate=0.001, amplitude_ra
     Returns:
     numpy.ndarray: 2D array of impulsive noise (samples x channels)
     """
+    # Generate random locations for impulses
     impulse_locations = np.random.random((num_samples, num_channels)) < rate
+    # Generate random amplitudes for impulses
     impulse_amplitudes = np.random.uniform(amplitude_range[0], amplitude_range[1], (num_samples, num_channels))
     return impulse_locations * impulse_amplitudes
 
@@ -111,6 +122,7 @@ if __name__ == "__main__":
     
     artificial_data = generate_artificial_data(duration, fs, num_channels)
     
+    # Print information about the generated data
     print(f"Generated artificial data shape: {artificial_data.shape}")
     print(f"Data duration: {duration} seconds")
     print(f"Sampling rate: {fs} Hz")
