@@ -4,6 +4,7 @@ from src.data_handling.data_loader import load_data
 from src.analysis.signal_processing import apply_notch_filter, apply_lowpass_filter, apply_highpass_filter, detect_peaks, extract_peak_windows
 from src.analysis.artifact_detection import detect_artifacts_all_channels
 import numpy as np
+from .plot_panel import PlotPanel
 
 class ControlPanel(ttk.Frame):
     """
@@ -24,7 +25,7 @@ class ControlPanel(ttk.Frame):
         avg_peak_windows (list): List of arrays containing average peak windows for each channel.
     """
 
-    def __init__(self, parent, update_callback):
+    def __init__(self, parent):
         """
         Initialize the ControlPanel.
 
@@ -34,7 +35,9 @@ class ControlPanel(ttk.Frame):
         """
         super().__init__(parent, style="Left.TFrame", width=250)
         self.pack_propagate(False)
-        self.update_callback = update_callback
+
+        self.plot_panel = PlotPanel(parent)
+        self.plot_panel.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
         self.data = None
         self.time = None
@@ -123,7 +126,18 @@ class ControlPanel(ttk.Frame):
         peak_label.pack(side=tk.LEFT)
         self.peak_entry = ttk.Entry(peak_frame, width=10, style="Dark.TEntry")
         self.peak_entry.pack(side=tk.RIGHT)
-        self.peak_entry.insert(0, "50")  # Changed default value to 50
+        self.peak_entry.insert(0, "50")
+
+        # Add checkbox for peak polarity
+        self.peak_polarity_var = tk.BooleanVar(value=False)
+        self.peak_polarity_check = ttk.Checkbutton(
+            filter_frame,
+            text="Detect Positive Peaks",
+            variable=self.peak_polarity_var,
+            style="TCheckbutton"
+        )
+        self.peak_polarity_check.pack(fill=tk.X, pady=5)
+
         peak_button = ttk.Button(filter_frame, text="Detect Peaks", command=self.detect_peaks, style="TButton")
         peak_button.pack(fill=tk.X, pady=5)
 
@@ -137,7 +151,7 @@ class ControlPanel(ttk.Frame):
 
         self.channel_listbox = tk.Listbox(channel_frame, selectmode=tk.MULTIPLE, bg="#1E1E1E", fg="white", font=("Arial", 10))
         self.channel_listbox.pack(fill=tk.BOTH, expand=True)
-        self.channel_listbox.bind("<<ListboxSelect>>", lambda e: self.update_callback())
+        self.channel_listbox.bind("<<ListboxSelect>>", lambda event: self.update_callback())
 
     def load_data(self):
         """Load data from a file and update the channel list."""
@@ -197,12 +211,13 @@ class ControlPanel(ttk.Frame):
             return
         try:
             threshold = float(self.peak_entry.get())
-            window_size = 2000  # Define window size
+            window_size = int(self.sampling_rate * 0.1)  # 100ms window
+            detect_positive = self.peak_polarity_var.get()
             
-            # Print debug information
             print(f"Threshold: {threshold}")
             print(f"Data shape: {self.data.shape}")
             print(f"Sampling rate: {self.sampling_rate}")
+            print(f"Detecting {'positive' if detect_positive else 'negative'} peaks")
             
             self.peaks = []
             self.peak_windows = []
@@ -210,14 +225,12 @@ class ControlPanel(ttk.Frame):
             
             for channel in range(self.data.shape[1]):
                 channel_data = self.data[:, channel]
-                channel_peaks = detect_peaks(channel_data, 
-                                             distance=int(self.sampling_rate * 0.5),  # Assume minimum 0.5s between peaks
-                                             threshold=threshold,
-                                             window_size=window_size)
+                channel_peaks = detect_peaks(channel_data, self.sampling_rate, threshold, 
+                                             detect_positive=detect_positive, window_size=window_size)
                 
                 self.peaks.append(channel_peaks)
                 
-                channel_peak_windows = extract_peak_windows(channel_data, channel_peaks, window_size=window_size)
+                channel_peak_windows = extract_peak_windows(channel_data, channel_peaks, window_size)
                 self.peak_windows.append(channel_peak_windows)
                 
                 if len(channel_peak_windows) > 0:
@@ -254,3 +267,7 @@ class ControlPanel(ttk.Frame):
             list: List of indices of the selected channels.
         """
         return [i for i in self.channel_listbox.curselection()]
+
+    def update_callback(self, event=None):
+        data_dict = self.get_data()
+        self.plot_panel.update_plot(data_dict)
