@@ -1,18 +1,11 @@
-import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
-from src.data_handling.data_loader import load_data
-from src.analysis.signal_processing import apply_notch_filter, apply_lowpass_filter, apply_highpass_filter, detect_peaks, extract_peak_windows
-from src.analysis.artifact_detection import detect_artifacts_all_channels
-import numpy as np
+import customtkinter as ctk
 from .plot_panel import PlotPanel
-from src.analysis.peak_statistics import compute_peak_statistics, compute_channel_statistics
 from .statistics_panel import StatisticsPanel
-import pandas as pd
 from .data_manager import DataManager
 from .filter_panel import FilterPanel
 from .channel_panel import ChannelPanel
 
-class ControlPanel(ttk.Frame):
+class ControlPanel(ctk.CTkFrame):
     """
     A panel that controls the main functionality of the Electrophysiology Data Analyzer.
 
@@ -34,36 +27,32 @@ class ControlPanel(ttk.Frame):
         Args:
             parent: The parent widget.
         """
-        super().__init__(parent, style="Dark.TFrame", width=250)
+        super().__init__(parent, width=250)
         self.pack_propagate(False)
 
         self.data_manager = DataManager(self.update_callback)
         
         self.plot_panel = PlotPanel(parent, self.update_trim_button)
-        self.plot_panel.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+        self.plot_panel.pack(side="right", fill="both", expand=True)
         
         self.statistics_panel = StatisticsPanel(parent)
-        self.statistics_panel.pack(side=tk.RIGHT, fill=tk.Y)
+        self.statistics_panel.pack(side="right", fill="y")
 
         self.filter_panel = FilterPanel(self, self.data_manager, self.update_callback)
-        self.filter_panel.pack(fill=tk.X, pady=10)
+        self.filter_panel.pack(fill="x", pady=10)
 
         self.channel_panel = ChannelPanel(self, self.data_manager, self.update_callback)
-        self.channel_panel.pack(fill=tk.BOTH, expand=True)
+        self.channel_panel.pack(fill="both", expand=True)
 
         self.create_widgets()
 
     def create_widgets(self):
         """Create and configure the widgets for the ControlPanel."""
-        self.configure(style="Dark.TFrame")
-        
-        # Add Toggle Span Selector button
-        self.toggle_span_button = ttk.Button(self, text="Toggle Span Selector", command=self.toggle_span_selector, style="Dark.TButton")
-        self.toggle_span_button.pack(fill=tk.X, pady=5)
+        self.toggle_span_button = ctk.CTkButton(self, text="Toggle Span Selector", command=self.toggle_span_selector, corner_radius=10)
+        self.toggle_span_button.pack(fill="x", pady=5)
 
-        # Add Trim Data button
-        self.trim_button = ttk.Button(self, text="Trim Data", command=self.trim_data, style="Dark.TButton", state=tk.DISABLED)
-        self.trim_button.pack(fill=tk.X, pady=5)
+        self.trim_button = ctk.CTkButton(self, text="Trim Data", command=self.trim_data, state="disabled", corner_radius=10)
+        self.trim_button.pack(fill="x", pady=5)
 
     def load_data(self):
         """Load data using the current sampling rate and update the UI."""

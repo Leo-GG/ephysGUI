@@ -1,8 +1,7 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
+import customtkinter as ctk
 from .control_panel import ControlPanel
 
-class ElectrophysiologyAnalyzer(tk.Tk):
+class ElectrophysiologyAnalyzer(ctk.CTk):
     """
     Main application window for the Electrophysiology Data Analyzer.
 
@@ -26,75 +25,61 @@ class ElectrophysiologyAnalyzer(tk.Tk):
 
         self.title("Electrophysiology Data Analysis Tool")
         self.geometry("1400x800")
-        self.configure(bg="#000000")
 
-        self.create_styles()
+        # Set the appearance mode and color theme
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("blue")
+
         self.create_menu()
         self.create_widgets()
 
-    def create_styles(self):
-        self.style = ttk.Style()
-        self.style.theme_use('default')
-        self.style.configure("Dark.TFrame", background="#000000")
-        self.style.configure("Dark.TButton", background="#333333", foreground="white", font=("Arial", 12))
-        self.style.map("Dark.TButton",
-                       background=[('active', '#4A6984')],
-                       foreground=[('active', 'white')])
-        self.style.configure("Dark.TLabel", background="#000000", foreground="white", font=("Arial", 12))
-        self.style.configure("Dark.TEntry", fieldbackground="#333333", foreground="white", font=("Arial", 14))
-        self.style.configure("Dark.TCheckbutton", background="#000000", foreground="white", font=("Arial", 12))
-        
-        # Configure Treeview style
-        self.style.configure("Dark.Treeview",
-                             background="#1E1E1E",
-                             foreground="white",
-                             fieldbackground="#1E1E1E",
-                             font=("Arial", 12))
-        self.style.configure("Dark.Treeview.Heading",
-                             background="#333333",
-                             foreground="white",
-                             font=("Arial", 12, "bold"))
-        self.style.map("Dark.Treeview", background=[('selected', '#4A6984')])
-
     def create_menu(self):
-        menubar = tk.Menu(self)
-        self.config(menu=menubar)
+        menu_frame = ctk.CTkFrame(self)
+        menu_frame.pack(side="top", fill="x")
 
-        # File menu
-        file_menu = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="File", menu=file_menu)
-        file_menu.add_command(label="Load Data", command=self.load_data)
-        file_menu.add_command(label="Save Statistics", command=self.save_statistics)
-        file_menu.add_command(label="Save Peak Data", command=self.save_comprehensive_peak_data)
-        file_menu.add_command(label="Save Peak Waveforms", command=self.save_peak_windows)
-        file_menu.add_separator()
-        file_menu.add_command(label="Clear All Data", command=self.clear_all_data)  # Add this line
-        file_menu.add_separator()
-        file_menu.add_command(label="Exit", command=self.quit)
+        file_button = ctk.CTkButton(menu_frame, text="File", command=self.show_file_menu)
+        file_button.pack(side="left", padx=5, pady=5)
 
-        # Help menu
-        help_menu = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Help", menu=help_menu)
-        help_menu.add_command(label="About", command=self.show_about)
+        help_button = ctk.CTkButton(menu_frame, text="Help", command=self.show_help_menu)
+        help_button.pack(side="left", padx=5, pady=5)
+
+    def show_file_menu(self):
+        file_menu = ctk.CTkToplevel(self)
+        file_menu.geometry("200x250")
+        file_menu.title("File Menu")
+
+        load_button = ctk.CTkButton(file_menu, text="Load Data", command=self.load_data)
+        load_button.pack(pady=5, padx=10, fill="x")
+
+        save_stats_button = ctk.CTkButton(file_menu, text="Save Statistics", command=self.save_statistics)
+        save_stats_button.pack(pady=5, padx=10, fill="x")
+
+        save_peak_data_button = ctk.CTkButton(file_menu, text="Save Peak Data", command=self.save_comprehensive_peak_data)
+        save_peak_data_button.pack(pady=5, padx=10, fill="x")
+
+        save_peak_windows_button = ctk.CTkButton(file_menu, text="Save Peak Waveforms", command=self.save_peak_windows)
+        save_peak_windows_button.pack(pady=5, padx=10, fill="x")
+
+        clear_data_button = ctk.CTkButton(file_menu, text="Clear All Data", command=self.clear_all_data)
+        clear_data_button.pack(pady=5, padx=10, fill="x")
+
+        exit_button = ctk.CTkButton(file_menu, text="Exit", command=self.quit)
+        exit_button.pack(pady=5, padx=10, fill="x")
+
+    def show_help_menu(self):
+        help_menu = ctk.CTkToplevel(self)
+        help_menu.geometry("200x100")
+        help_menu.title("Help Menu")
+
+        about_button = ctk.CTkButton(help_menu, text="About", command=self.show_about)
+        about_button.pack(pady=5, padx=10, fill="x")
 
     def create_widgets(self):
-        """
-        Create and arrange the main GUI components.
+        main_frame = ctk.CTkFrame(self)
+        main_frame.pack(fill="both", expand=True)
 
-        This method creates the main frame, initializes the control panel
-        and plot panel, and arranges them within the main window.
-        """
-        main_frame = ttk.Frame(self, style="Dark.TFrame")
-        main_frame.pack(fill=tk.BOTH, expand=True)
-
-        # Create the control panel
         self.control_panel = ControlPanel(main_frame)
-        self.control_panel.pack(side=tk.LEFT, fill=tk.Y)
-
-        # The PlotPanel and StatisticsPanel are now created inside the ControlPanel
-
-        # Adjust the window size to accommodate the wider StatisticsPanel
-        self.geometry("1400x800")  # Increased width from 1200 to 1400
+        self.control_panel.pack(side="left", fill="y")
 
     def load_data(self):
         self.control_panel.load_data()
@@ -112,6 +97,10 @@ class ElectrophysiologyAnalyzer(tk.Tk):
         self.control_panel.clear_all_data()
 
     def show_about(self):
+        about_window = ctk.CTkToplevel(self)
+        about_window.title("About")
+        about_window.geometry("400x300")
+
         about_text = """
         Electrophysiology Data Analysis Tool
 
@@ -125,7 +114,9 @@ class ElectrophysiologyAnalyzer(tk.Tk):
         
         leonardogarma@gmail.com
         """
-        messagebox.showinfo("About", about_text)
+        
+        label = ctk.CTkLabel(about_window, text=about_text, wraplength=380, justify="left")
+        label.pack(padx=10, pady=10)
 
 if __name__ == "__main__":
     app = ElectrophysiologyAnalyzer()

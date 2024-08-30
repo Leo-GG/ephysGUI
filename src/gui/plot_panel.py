@@ -1,11 +1,10 @@
-import tkinter as tk
-from tkinter import ttk
+import customtkinter as ctk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.widgets import SpanSelector
 import numpy as np
 
-class PlotPanel(ttk.Frame):
+class PlotPanel(ctk.CTkFrame):
     """
     A panel for plotting electrophysiology data and average peak windows.
 
@@ -25,19 +24,12 @@ class PlotPanel(ttk.Frame):
         super().__init__(parent)
         self.trim_callback = trim_callback
         self.fig, self.canvas = self.create_plot()
-        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        self.canvas.get_tk_widget().pack(fill="both", expand=True)
         
-        # Add the matplotlib toolbar
-        self.toolbar = NavigationToolbar2Tk(self.canvas, self)
+        toolbar_frame = ctk.CTkFrame(self)
+        toolbar_frame.pack(side="bottom", fill="x")
+        self.toolbar = NavigationToolbar2Tk(self.canvas, toolbar_frame)
         self.toolbar.update()
-        self.toolbar.pack(side=tk.BOTTOM, fill=tk.X)
-
-        # Configure toolbar style
-        self.toolbar.config(background='black')
-        self.toolbar._message_label.config(background='black', foreground='white')
-        for button in self.toolbar.winfo_children():
-            if isinstance(button, tk.Button):
-                button.config(background='#333333', foreground='white')
 
         self.span_selector = None
         self.selected_range = None
