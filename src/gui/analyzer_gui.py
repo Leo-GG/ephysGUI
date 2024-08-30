@@ -35,6 +35,18 @@ class ElectrophysiologyAnalyzer(tk.Tk):
         self.style.configure("Dark.TLabel", background="#000000", foreground="white", font=("Arial", 12))
         self.style.configure("Dark.TEntry", fieldbackground="#333333", foreground="white", font=("Arial", 14))
         self.style.configure("Dark.TCheckbutton", background="#000000", foreground="white", font=("Arial", 12))
+        
+        # Configure Treeview style
+        self.style.configure("Dark.Treeview",
+                             background="#1E1E1E",
+                             foreground="white",
+                             fieldbackground="#1E1E1E",
+                             font=("Arial", 12))
+        self.style.configure("Dark.Treeview.Heading",
+                             background="#333333",
+                             foreground="white",
+                             font=("Arial", 12, "bold"))
+        self.style.map("Dark.Treeview", background=[('selected', '#4A6984')])
 
         self.create_widgets()
 
@@ -53,6 +65,9 @@ class ElectrophysiologyAnalyzer(tk.Tk):
         self.control_panel.pack(side=tk.LEFT, fill=tk.Y)
 
         # The PlotPanel and StatisticsPanel are now created inside the ControlPanel
+
+        # Adjust the window size to accommodate the wider StatisticsPanel
+        self.geometry("1400x800")  # Increased width from 1200 to 1400
 
 if __name__ == "__main__":
     app = ElectrophysiologyAnalyzer()
