@@ -198,3 +198,34 @@ class DataManager:
         """
         channels_to_delete = [ch for ch in self.channel_mapping if ch not in channels_to_keep]
         self.delete_channels(channels_to_delete)
+
+    def save_comprehensive_peak_data(self):
+        """
+        Save comprehensive peak data to a CSV file.
+        This includes peak times, amplitudes, and inter-peak distances for each channel.
+        """
+        if self.peaks is None or self.data is None:
+            messagebox.showwarning("Warning", "No peak data available. Please detect peaks first.")
+            return
+
+        file_path = filedialog.asksaveasfilename(defaultextension=".csv",
+                                                 filetypes=[("CSV files", "*.csv")])
+        if not file_path:
+            return
+
+        try:
+            with open(file_path, 'w') as f:
+                f.write("Channel, Peak Time (s),Peak Amplitude (mV),Inter-Peak Distance (s)\n")
+                for channel, peaks in enumerate(self.peaks):
+                    peak_times = self.time[peaks]
+                    peak_amplitudes = self.data[peaks, channel]
+                    inter_peak_distances = np.diff(peak_times)
+                    
+                    for i, (time, amplitude) in enumerate(zip(peak_times, peak_amplitudes)):
+                        if i == 0:
+                            f.write(f"{self.channel_mapping[channel]},{time:.6f},{amplitude:.6f},\n")
+                        else:
+                            f.write(f"{self.channel_mapping[channel]},{time:.6f},{amplitude:.6f},{inter_peak_distances[i-1]:.6f}\n")
+            messagebox.showinfo("Success", f"Comprehensive peak data saved to {file_path}")
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred while saving the file: {str(e)}")

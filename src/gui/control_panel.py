@@ -13,7 +13,27 @@ from .filter_panel import FilterPanel
 from .channel_panel import ChannelPanel
 
 class ControlPanel(ttk.Frame):
+    """
+    A panel that controls the main functionality of the Electrophysiology Data Analyzer.
+
+    This panel contains various widgets for data loading, processing, and visualization control.
+    It also manages interactions between different components of the application.
+
+    Attributes:
+        data_manager (DataManager): Manages the electrophysiology data and related operations.
+        plot_panel (PlotPanel): Handles the visualization of the data.
+        statistics_panel (StatisticsPanel): Displays statistical information about the data.
+        filter_panel (FilterPanel): Contains controls for applying filters to the data.
+        channel_panel (ChannelPanel): Manages channel selection and related operations.
+    """
+
     def __init__(self, parent):
+        """
+        Initialize the ControlPanel.
+
+        Args:
+            parent: The parent widget.
+        """
         super().__init__(parent, style="Dark.TFrame", width=250)
         self.pack_propagate(False)
 
@@ -34,6 +54,7 @@ class ControlPanel(ttk.Frame):
         self.create_widgets()
 
     def create_widgets(self):
+        """Create and configure the widgets for the ControlPanel."""
         self.configure(style="Dark.TFrame")
         
         # Add Toggle Span Selector button
@@ -45,18 +66,21 @@ class ControlPanel(ttk.Frame):
         self.trim_button.pack(fill=tk.X, pady=5)
 
     def load_data(self):
+        """Load data using the current sampling rate and update the UI."""
         sampling_rate = self.filter_panel.get_sampling_rate()
         self.data_manager.load_data(sampling_rate)
         self.channel_panel.update_channel_list()
         self.update_callback()
 
     def save_statistics_to_excel(self):
+        """Save the current channel statistics to an Excel file."""
         if self.data_manager.channel_statistics is None:
             messagebox.showwarning("Warning", "No channel statistics available. Please load data first.")
             return
         self.data_manager.save_statistics_to_excel()
 
     def toggle_span_selector(self):
+        """Toggle the span selector on the plot panel."""
         self.plot_panel.toggle_span_selector()
         if self.plot_panel.span_selector_active:
             self.toggle_span_button.config(text="Disable Span Selector")
@@ -64,10 +88,17 @@ class ControlPanel(ttk.Frame):
             self.toggle_span_button.config(text="Enable Span Selector")
 
     def update_trim_button(self, selected_range):
+        """
+        Update the state of the trim button based on the selected range.
+
+        Args:
+            selected_range (tuple): The selected range (min, max) or None if no range is selected.
+        """
         self.selected_range = selected_range
         self.trim_button.config(state=tk.NORMAL if selected_range is not None else tk.DISABLED)
 
     def trim_data(self):
+        """Trim the data based on the selected range in the plot."""
         if self.selected_range is None:
             messagebox.showwarning("Warning", "Please select a range first.")
             return
@@ -88,6 +119,12 @@ class ControlPanel(ttk.Frame):
             messagebox.showinfo("Info", "Data has been trimmed successfully.")
 
     def update_callback(self, event=None):
+        """
+        Update the plot and statistics panels with the current data.
+
+        Args:
+            event: Optional event data (not used).
+        """
         data_dict = self.data_manager.get_data()
         self.plot_panel.update_plot(data_dict)
         self.statistics_panel.update_statistics(
@@ -95,3 +132,10 @@ class ControlPanel(ttk.Frame):
             peak_statistics=self.data_manager.peak_statistics,
             channel_mapping=self.data_manager.channel_mapping
         )
+
+    def save_comprehensive_peak_data(self):
+        """Save comprehensive peak data to a CSV file."""
+        if self.data_manager.peaks is None:
+            messagebox.showwarning("Warning", "No peak data available. Please detect peaks first.")
+            return
+        self.data_manager.save_comprehensive_peak_data()
