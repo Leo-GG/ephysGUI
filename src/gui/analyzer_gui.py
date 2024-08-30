@@ -64,6 +64,7 @@ class ElectrophysiologyAnalyzer(tk.Tk):
         file_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="Load Data", command=self.load_data)
+        file_menu.add_command(label="Save Statistics", command=self.save_statistics)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.quit)
 
@@ -94,6 +95,12 @@ class ElectrophysiologyAnalyzer(tk.Tk):
     def load_data(self):
         self.control_panel.load_data()
 
+    def save_statistics(self):
+        if not hasattr(self.control_panel, 'channel_statistics'):
+            messagebox.showwarning("Warning", "No statistics available to save.")
+        else:
+            self.control_panel.save_statistics_to_excel()
+
     def show_about(self):
         about_text = """
         Electrophysiology Data Analysis Tool
@@ -105,6 +112,7 @@ class ElectrophysiologyAnalyzer(tk.Tk):
 
         Created by: Leonardo Garma
         August 2024
+        
         leonardogarma@gmail.com
         """
         messagebox.showinfo("About", about_text)

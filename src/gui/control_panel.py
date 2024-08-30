@@ -7,6 +7,7 @@ import numpy as np
 from .plot_panel import PlotPanel
 from src.analysis.peak_statistics import compute_peak_statistics, compute_channel_statistics
 from .statistics_panel import StatisticsPanel
+import pandas as pd
 
 class ControlPanel(ttk.Frame):
     """
@@ -462,3 +463,35 @@ class ControlPanel(ttk.Frame):
             )
 
             messagebox.showinfo("Info", "Data has been trimmed successfully.")
+
+    def save_statistics_to_excel(self):
+        """Save the current statistics to an Excel file."""
+        if not hasattr(self, 'channel_statistics'):
+            messagebox.showwarning("Warning", "No statistics available to save.")
+            return
+
+        file_path = filedialog.asksaveasfilename(defaultextension=".xlsx",
+                                                 filetypes=[("Excel files", "*.xlsx")])
+        if not file_path:
+            return  # User cancelled the file dialog
+
+        try:
+            with pd.ExcelWriter(file_path) as writer:
+                # Save channel statistics
+                channel_df = pd.DataFrame(self.channel_statistics)
+                channel_df['Original Channel'] = self.channel_mapping
+                channel_df = channel_df.set_index('Original Channel')
+                channel_df.to_excel(writer, sheet_name='Channel Statistics')
+
+                # Save peak statistics if available
+                if hasattr(self, 'peak_statistics') and self.peak_statistics:
+                    peak_df = pd.DataFrame(self.peak_statistics)
+                    peak_df['Original Channel'] = self.channel_mapping
+                    peak_df = peak_df.set_index('Original Channel')
+                    peak_df.to_excel(writer, sheet_name='Peak Statistics')
+                else:
+                    messagebox.showwarning("Warning", "No peak statistics available. Only channel statistics will be saved.")
+
+            messagebox.showinfo("Success", f"Statistics saved to {file_path}")
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred while saving the file: {str(e)}")
