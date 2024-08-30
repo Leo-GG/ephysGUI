@@ -1,5 +1,26 @@
 import numpy as np
 
+def compute_channel_statistics(data):
+    """
+    Compute basic statistics for each channel.
+
+    Args:
+        data (numpy.ndarray): The electrophysiology data (samples x channels).
+
+    Returns:
+        list: List of dictionaries containing statistics for each channel.
+    """
+    channel_stats = []
+    for channel in range(data.shape[1]):
+        channel_data = data[:, channel]
+        stats = {
+            'channel': channel + 1,
+            'mean': np.mean(channel_data),
+            'std': np.std(channel_data)
+        }
+        channel_stats.append(stats)
+    return channel_stats
+
 def compute_peak_statistics(data, peaks, time):
     """
     Compute statistics for detected peaks.
