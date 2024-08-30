@@ -63,7 +63,7 @@ class StatisticsPanel(ttk.Frame):
         if channel_statistics and channel_mapping:
             self.channel_tree.delete(*self.channel_tree.get_children())
             for stats in channel_statistics:
-                original_channel = channel_mapping[stats['channel'] - 1]
+                original_channel = channel_mapping[stats['channel']]  # Remove the -1
                 self.channel_tree.insert("", "end", values=(
                     original_channel,
                     f"{stats['mean']:.2f}",
@@ -73,7 +73,7 @@ class StatisticsPanel(ttk.Frame):
         if peak_statistics and channel_mapping:
             self.peak_tree.delete(*self.peak_tree.get_children())
             for stats in peak_statistics:
-                original_channel = channel_mapping[stats['channel'] - 1]
+                original_channel = channel_mapping[stats['channel']]  # Remove the -1
                 self.peak_tree.insert("", "end", values=(
                     original_channel,
                     stats['num_peaks'],

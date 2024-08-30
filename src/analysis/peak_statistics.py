@@ -14,7 +14,7 @@ def compute_channel_statistics(data):
     for channel in range(data.shape[1]):
         channel_data = data[:, channel]
         stats = {
-            'channel': channel + 1,
+            'channel': channel,  # Start from 0
             'mean': np.mean(channel_data),
             'std': np.std(channel_data)
         }
@@ -40,7 +40,7 @@ def compute_peak_statistics(data, peaks, time):
         if len(channel_peaks) > 0:
             peak_amplitudes = data[channel_peaks, channel]
             stats = {
-                'channel': channel + 1,
+                'channel': channel,  # Start from 0
                 'num_peaks': len(channel_peaks),
                 'frequency': len(channel_peaks) / total_time,
                 'avg_amplitude': np.mean(peak_amplitudes),
@@ -48,7 +48,7 @@ def compute_peak_statistics(data, peaks, time):
             }
         else:
             stats = {
-                'channel': channel + 1,
+                'channel': channel,  # Start from 0
                 'num_peaks': 0,
                 'frequency': 0,
                 'avg_amplitude': 0,

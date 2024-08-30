@@ -173,7 +173,7 @@ class ControlPanel(ttk.Frame):
     def update_channel_list(self):
         """Update the channel listbox with the available channels."""
         self.channel_listbox.delete(0, tk.END)
-        for i, original_channel in enumerate(self.channel_mapping):
+        for original_channel in self.channel_mapping:
             self.channel_listbox.insert(tk.END, f"Channel {original_channel}")
 
     def delete_selected_channels(self):
@@ -277,7 +277,7 @@ class ControlPanel(ttk.Frame):
             self.data, self.time = load_data(file_path)
             self.sampling_rate = float(self.sr_entry.get())
             self.time = self.time / self.sampling_rate
-            self.channel_mapping = list(range(1, self.data.shape[1] + 1))  # Initialize channel mapping
+            self.channel_mapping = list(range(self.data.shape[1]))  # Start from 0
             self.update_channel_list()
             
             # Compute and display channel statistics
@@ -395,7 +395,7 @@ class ControlPanel(ttk.Frame):
         Returns:
             list: List of indices of the selected channels.
         """
-        return [self.channel_mapping[i] - 1 for i in self.channel_listbox.curselection()]
+        return [self.channel_mapping[i] for i in self.channel_listbox.curselection()]
 
     def update_callback(self, event=None):
         data_dict = self.get_data()
