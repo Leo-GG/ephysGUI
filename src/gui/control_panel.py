@@ -38,7 +38,7 @@ class ControlPanel(ttk.Frame):
         super().__init__(parent, style="Dark.TFrame", width=250)
         self.pack_propagate(False)
 
-        self.plot_panel = PlotPanel(parent)
+        self.plot_panel = PlotPanel(parent, self.update_trim_button)
         self.plot_panel.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
         
         self.statistics_panel = StatisticsPanel(parent)
@@ -57,14 +57,16 @@ class ControlPanel(ttk.Frame):
     def create_widgets(self):
         """Create and arrange the control widgets."""
         self.configure(style="Dark.TFrame")
-        self.create_load_button()
         self.create_filter_options()
         self.create_channel_selection()
 
-    def create_load_button(self):
-        """Create the 'Load Data' button."""
-        load_button = ttk.Button(self, text="Load Data", command=self.load_data, style="Dark.TButton")
-        load_button.pack(fill=tk.X, pady=(0, 20))
+        # Add Toggle Span Selector button
+        self.toggle_span_button = ttk.Button(self, text="Toggle Span Selector", command=self.toggle_span_selector, style="Dark.TButton")
+        self.toggle_span_button.pack(fill=tk.X, pady=5)
+
+        # Add Trim Data button
+        self.trim_button = ttk.Button(self, text="Trim Data", command=self.trim_data, style="Dark.TButton", state=tk.DISABLED)
+        self.trim_button.pack(fill=tk.X, pady=5)
 
     def create_filter_options(self):
         """Create widgets for filter options, artifact detection, and peak detection."""
@@ -287,3 +289,62 @@ class ControlPanel(ttk.Frame):
     def update_callback(self, event=None):
         data_dict = self.get_data()
         self.plot_panel.update_plot(data_dict)
+
+    def toggle_span_selector(self):
+        self.plot_panel.toggle_span_selector()
+        if self.plot_panel.span_selector_active:
+            self.toggle_span_button.config(text="Disable Span Selector")
+        else:
+            self.toggle_span_button.config(text="Enable Span Selector")
+
+    def update_trim_button(self, selected_range):
+        self.selected_range = selected_range
+        self.trim_button.config(state=tk.NORMAL if selected_range is not None else tk.DISABLED)
+
+    def trim_data(self):
+        if self.selected_range is None:
+            messagebox.showwarning("Warning", "Please select a range first.")
+            return
+
+        confirm = messagebox.askyesno("Confirm Trim", "Are you sure you want to trim the data? This action cannot be undone.")
+        if confirm:
+            start_idx = np.searchsorted(self.time, self.selected_range[0])
+            end_idx = np.searchsorted(self.time, self.selected_range[1])
+
+            self.data = self.data[start_idx:end_idx]
+            self.time = self.time[start_idx:end_idx]
+
+            if self.artifacts is not None:
+                self.artifacts = self.artifacts[start_idx:end_idx]
+
+            if self.peaks is not None:
+                self.peaks = [np.array([p for p in channel_peaks if start_idx <= p < end_idx]) - start_idx for channel_peaks in self.peaks]
+            else:
+                self.peaks = None
+
+            if self.peak_windows is not None:
+                self.peak_windows = [windows[np.logical_and(start_idx <= peaks, peaks < end_idx)] for windows, peaks in zip(self.peak_windows, self.peaks)]
+            else:
+                self.peak_windows = None
+
+            if self.avg_peak_windows is not None:
+                # Recalculate average peak windows if necessary
+                self.avg_peak_windows = [np.mean(windows, axis=0) if len(windows) > 0 else None for windows in self.peak_windows]
+            else:
+                self.avg_peak_windows = None
+
+            # Disable span selector and update plot
+            self.plot_panel.span_selector_active = False
+            self.plot_panel.remove_span_selector()
+            self.toggle_span_button.config(text="Enable Span Selector")
+            self.update_callback()
+
+            # Recompute and update statistics
+            self.channel_statistics = compute_channel_statistics(self.data)
+            if self.peaks is not None:
+                self.peak_statistics = compute_peak_statistics(self.data, self.peaks, self.time)
+            else:
+                self.peak_statistics = None
+            self.statistics_panel.update_statistics(channel_statistics=self.channel_statistics, peak_statistics=self.peak_statistics)
+
+            messagebox.showinfo("Info", "Data has been trimmed successfully.")
