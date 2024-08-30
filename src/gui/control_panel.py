@@ -150,7 +150,7 @@ class ControlPanel(ttk.Frame):
         peak_button.pack(fill=tk.X, pady=5)
 
     def create_channel_selection(self):
-        """Create the channel selection listbox and delete button."""
+        """Create the channel selection listbox and delete buttons."""
         channel_frame = ttk.Frame(self, style="Dark.TFrame")
         channel_frame.pack(fill=tk.BOTH, expand=True)
 
@@ -162,8 +162,12 @@ class ControlPanel(ttk.Frame):
         self.channel_listbox.bind("<<ListboxSelect>>", lambda event: self.update_callback())
 
         # Add Delete Channel button
-        self.delete_channel_button = ttk.Button(channel_frame, text="Delete Channel", command=self.delete_selected_channels, style="Dark.TButton")
+        self.delete_channel_button = ttk.Button(channel_frame, text="Delete Selected Channels", command=self.delete_selected_channels, style="Dark.TButton")
         self.delete_channel_button.pack(fill=tk.X, pady=5)
+
+        # Add Keep Selected Channels button
+        self.keep_selected_button = ttk.Button(channel_frame, text="Keep Only Selected Channels", command=self.keep_selected_channels, style="Dark.TButton")
+        self.keep_selected_button.pack(fill=tk.X, pady=5)
 
     def update_channel_list(self):
         """Update the channel listbox with the available channels."""
@@ -214,6 +218,56 @@ class ControlPanel(ttk.Frame):
         self.update_callback()
 
         messagebox.showinfo("Info", "Selected channels have been deleted successfully.")
+
+    def keep_selected_channels(self):
+        """Delete all channels except the selected ones."""
+        selected_indices = self.channel_listbox.curselection()
+        if not selected_indices:
+            messagebox.showwarning("Warning", "Please select at least one channel to keep.")
+            return
+
+        confirm = messagebox.askyesno("Confirm Keep", "Are you sure you want to keep only the selected channels? This action cannot be undone.")
+        if not confirm:
+            return
+
+        # Convert to set for faster lookup
+        selected_indices_set = set(selected_indices)
+
+        # Identify indices to delete (all except selected)
+        indices_to_delete = [i for i in range(self.data.shape[1]) if i not in selected_indices_set]
+
+        # Sort in descending order to avoid index issues when deleting
+        indices_to_delete.sort(reverse=True)
+
+        # Delete channels from data and related arrays
+        for index in indices_to_delete:
+            self.data = np.delete(self.data, index, axis=1)
+            if self.artifacts is not None:
+                self.artifacts = np.delete(self.artifacts, index, axis=1)
+            if self.peaks is not None:
+                del self.peaks[index]
+            if self.peak_windows is not None:
+                del self.peak_windows[index]
+            if self.avg_peak_windows is not None:
+                del self.avg_peak_windows[index]
+            del self.channel_mapping[index]  # Remove the channel from mapping
+
+        # Update channel list and statistics
+        self.update_channel_list()
+        self.channel_statistics = compute_channel_statistics(self.data)
+        if self.peaks is not None:
+            self.peak_statistics = compute_peak_statistics(self.data, self.peaks, self.time)
+        else:
+            self.peak_statistics = None
+
+        self.statistics_panel.update_statistics(
+            channel_statistics=self.channel_statistics,
+            peak_statistics=self.peak_statistics,
+            channel_mapping=self.channel_mapping
+        )
+        self.update_callback()
+
+        messagebox.showinfo("Info", "All channels except the selected ones have been deleted successfully.")
 
     def load_data(self):
         """Load data from a file and update the channel list."""
