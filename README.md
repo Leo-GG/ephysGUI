@@ -70,7 +70,7 @@ python main.py
 
 ## Contributing
 
-Contributions to the Electrophysiology Data Analyzer are welcome. Please feel free to submit pull requests, create issues, or suggest improvements. For major changes, please open an issue first to discuss what you would like to change.
+Feel free to submit pull requests, create issues, or suggest improvements. For major changes and/or feature requests, please open an issue first to discuss what you would like to change.
 
 ## Contact
 
