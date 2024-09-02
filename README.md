@@ -1,8 +1,11 @@
 # Electrophysiology Data Analysis Tool
 
 ## Description
-This tool is designed for analyzing electrophysiological data, including filtering, artifact detection, and peak analysis. It provides a user-friendly graphical interface for loading, processing, and visualizing electrophysiological recordings.
-The tool was initially intended for the analysis of recordings from cardiac cell cultures, but it is flexible enough to be used with data from different sources. 
+This tool is designed for analyzing electrophysiological data, including filtering, artifact detection, and peak analysis. It provides a user-friendly graphical interface for loading, processing, and visualizing electrophysiological recordings. 
+
+This software was developed in the context of a project funded by the [Swedish Fund for Research Without Animal Experiments](https://forskautandjurforsok.se/swedish-fund-for-research-without-animal-experiments/) and the [Swedish Research Council](https://www.vr.se/english.html), with contributions from [Leonardo Garma](https://scholar.google.com/citations?user=IyGQ3nwAAAAJ&hl=en&oi=ao), [Kateryna Solodka](https://scholar.google.com/citations?user=dby1cccAAAAJ&hl=en&oi=ao) and [Erica Zeglio](https://scholar.google.com/citations?user=sjLyaVkAAAAJ&hl=en&oi=ao).
+
+The intended application is the analysis of electrophysiological signals from cardiac cells recorded with MEAs, but the software can be used with data from other sources.
 
 ![ephysGUI](data/GUI_screenshot.png "ephysGUI")
 
