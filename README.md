@@ -2,6 +2,7 @@
 
 ## Description
 This tool is designed for analyzing electrophysiological data, including filtering, artifact detection, and peak analysis. It provides a user-friendly graphical interface for loading, processing, and visualizing electrophysiological recordings.
+The tool was initially intended for the analysis of recordings from cardiac cell cultures, but it is flexible enough to be used with data from different sources. 
 
 ![ephysGUI](data/GUI_screenshot.png "ephysGUI")
 
