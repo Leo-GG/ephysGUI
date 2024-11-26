@@ -22,11 +22,11 @@ The intended application is the analysis of electrophysiological signals from ca
 ## Installation
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/electrophysiology-data-analyzer.git
+   git clone https://github.com/Leo-GG/ephysGUI
    ```
 2. Navigate to the project directory:
    ```bash
-   cd electrophysiology-data-analyzer
+   cd ephysGUI
    ```
 3. Install the required dependencies:
    ```bash
