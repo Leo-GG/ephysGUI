@@ -79,6 +79,19 @@ python main.py
 
 Contributions to the project are very welcome! Please feel free to submit pull requests, create issues, or suggest improvements. For major changes, please open an issue first to discuss what you would like to change.
 
+## Authors
+
+- [Leonardo Garma](https://www.linkedin.com/in/leonardo-garma/) - Development and Implementation
+- [Erica Zeglio](https://www.kth.se/profile/zeglio) - Project Supervision and Testing
+- [Kateryna Solodka](https://www.linkedin.com/in/kateryna-solodka/) - Testing and Validation
+
+## Funding
+
+This project was made possible through the generous support of:
+
+- [The Swedish Research Council (VR)](https://www.vr.se)
+- [Foundation for Research Without Animal Experiments (Forska Utan Djurförsök)](https://forskautandjurforsok.se)
+
 ## Contact
 
 Leonardo Garma - leonardo.garma@gmail.com
