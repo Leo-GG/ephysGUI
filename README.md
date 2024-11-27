@@ -3,6 +3,8 @@
 ## Description
 This tool is designed for analyzing electrophysiological data, including filtering, artifact detection, and peak analysis. It provides a user-friendly graphical interface for loading, processing, and visualizing electrophysiological recordings. The GUI supports both NumPy (.npy) files and Intan (.rhd) files through the [intan_reader](https://github.com/Leo-GG/intanreader) package.
 
+![alt text](data/GUI_screenshot.png "ephysGUI")
+
 ## Features
 - Load and visualize electrophysiology data
 - Apply various filters (notch, low-pass, high-pass)
