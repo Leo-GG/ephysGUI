@@ -83,9 +83,9 @@ Contributions to the project are very welcome! Please feel free to submit pull r
 
 ## Authors
 
-- [Leonardo Garma](https://www.linkedin.com/in/leonardo-garma/) - Development and Implementation
+- [Leonardo Garma](https://www.linkedin.com/in/lgarma/) - Development and Implementation
 - [Erica Zeglio](https://www.kth.se/profile/zeglio) - Project Supervision and Testing
-- [Kateryna Solodka](https://www.linkedin.com/in/kateryna-solodka/) - Testing and Validation
+- [Kateryna Solodka](https://www.linkedin.com/in/ksolodka/) - Testing and Validation
 
 ## Funding
 
