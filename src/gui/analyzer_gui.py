@@ -97,7 +97,16 @@ class ElectrophysiologyAnalyzer(tk.Tk):
         self.geometry("1400x800")  # Increased width from 1200 to 1400
 
     def load_data(self):
-        self.control_panel.load_data()
+        """
+        Open a file dialog to select and load data files.
+        """
+        file_types = [
+            ('All supported files', '*.npy;*.rhd'),
+            ('NumPy files', '*.npy'),
+            ('Intan RHD files', '*.rhd'),
+            ('All files', '*.*')
+        ]
+        self.control_panel.load_data(filetypes=file_types)
 
     def save_statistics(self):
         self.control_panel.save_statistics_to_excel()

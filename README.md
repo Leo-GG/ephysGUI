@@ -1,13 +1,7 @@
-# Electrophysiology Data Analysis Tool
+# Electrophysiology Data Analyzer
 
 ## Description
-This tool is designed for analyzing electrophysiological data, including filtering, artifact detection, and peak analysis. It provides a user-friendly graphical interface for loading, processing, and visualizing electrophysiological recordings. 
-
-This software was developed in the context of a project funded by the [Swedish Fund for Research Without Animal Experiments](https://forskautandjurforsok.se/swedish-fund-for-research-without-animal-experiments/) and the [Swedish Research Council](https://www.vr.se/english.html), with contributions from [Leonardo Garma](https://scholar.google.com/citations?user=IyGQ3nwAAAAJ&hl=en&oi=ao), [Kateryna Solodka](https://scholar.google.com/citations?user=dby1cccAAAAJ&hl=en&oi=ao) and [Erica Zeglio](https://scholar.google.com/citations?user=sjLyaVkAAAAJ&hl=en&oi=ao).
-
-The intended application is the analysis of electrophysiological signals from cardiac cells recorded with MEAs, but the software can be used with data from other sources.
-
-![ephysGUI](data/GUI_screenshot.png "ephysGUI")
+This tool is designed for analyzing electrophysiological data, including filtering, artifact detection, and peak analysis. It provides a user-friendly graphical interface for loading, processing, and visualizing electrophysiological recordings. The GUI supports both NumPy (.npy) files and Intan (.rhd) files through the [intan_reader](https://github.com/Leo-GG/intanreader) package.
 
 ## Features
 - Load and visualize electrophysiology data
@@ -20,9 +14,18 @@ The intended application is the analysis of electrophysiological signals from ca
 - Export statistics to Excel
 
 ## Installation
-1. Clone this repository:
+
+### Prerequisites
+
+- Python 3.8 or higher
+- pip package manager
+- [intan_reader](https://github.com/Leo-GG/intanreader) package
+
+### Installing from source
+
+1. Clone the repository:
    ```bash
-   git clone https://github.com/Leo-GG/ephysGUI
+   git clone https://github.com/leo-gg/ephysGUI.git
    ```
 2. Navigate to the project directory:
    ```bash
@@ -42,9 +45,10 @@ python main.py
 
 ### Loading Data
 
-1. Click the "Load Data" button to select a .npy file containing your electrophysiological data.
-2. The data should be a 2D NumPy array with shape (samples, channels).
-3. Enter the sampling rate of your data in the "Sampling Rate (Hz)" field.
+1. Click "File → Load Data" to select a data file:
+   - .npy files: 2D NumPy array with shape (samples, channels)
+   - .rhd files: Raw data files from Intan recording systems
+2. Enter the sampling rate of your data in the "Sampling Rate (Hz)" field (not needed for .rhd files as it -should be- automatically detected)
 
 ### Applying Filters
 
@@ -71,13 +75,16 @@ python main.py
 - Use the channel selection list on the right to choose which channels to display.
 - Use the zoom and pan buttons below the plots to navigate through the data.
 
-
 ## Contributing
 
-Feel free to submit pull requests, create issues, or suggest improvements. For major changes and/or feature requests, please open an issue first to discuss what you would like to change.
+Contributions to the project are very welcome! Please feel free to submit pull requests, create issues, or suggest improvements. For major changes, please open an issue first to discuss what you would like to change.
 
 ## Contact
 
 Leonardo Garma - leonardo.garma@gmail.com
 
 Project Link: [https://github.com/leo-gg/ephysGUI](https://github.com/leo-gg/ephysGUI)
+
+## Acknowledgements
+
+- [Intan Technologies](http://intantech.com/) for their excellent electrophysiology recording systems and open-source software

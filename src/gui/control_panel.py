@@ -37,8 +37,18 @@ class ControlPanel(ttk.Frame):
         super().__init__(parent, style="Dark.TFrame", width=250)
         self.pack_propagate(False)
 
+        # Initialize data manager first
         self.data_manager = DataManager(self.update_callback)
         
+        # Configure the frame
+        self.configure(style="Dark.TFrame")
+        
+        # Create all panels
+        self.create_panels(parent)
+        self.create_widgets()
+
+    def create_panels(self, parent):
+        """Create and arrange all panels."""
         self.plot_panel = PlotPanel(parent, self.update_trim_button)
         self.plot_panel.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
         
@@ -51,26 +61,49 @@ class ControlPanel(ttk.Frame):
         self.channel_panel = ChannelPanel(self, self.data_manager, self.update_callback)
         self.channel_panel.pack(fill=tk.BOTH, expand=True)
 
-        self.create_widgets()
-
     def create_widgets(self):
-        """Create and configure the widgets for the ControlPanel."""
-        self.configure(style="Dark.TFrame")
-        
+        """Create and configure the control buttons."""
         # Add Toggle Span Selector button
-        self.toggle_span_button = ttk.Button(self, text="Toggle Span Selector", command=self.toggle_span_selector, style="Dark.TButton")
+        self.toggle_span_button = ttk.Button(self, text="Toggle Span Selector", 
+                                           command=self.toggle_span_selector, 
+                                           style="Dark.TButton")
         self.toggle_span_button.pack(fill=tk.X, pady=5)
 
         # Add Trim Data button
-        self.trim_button = ttk.Button(self, text="Trim Data", command=self.trim_data, style="Dark.TButton", state=tk.DISABLED)
+        self.trim_button = ttk.Button(self, text="Trim Data", 
+                                    command=self.trim_data, 
+                                    style="Dark.TButton", 
+                                    state=tk.DISABLED)
         self.trim_button.pack(fill=tk.X, pady=5)
 
-    def load_data(self):
-        """Load data using the current sampling rate and update the UI."""
-        sampling_rate = self.filter_panel.get_sampling_rate()
-        self.data_manager.load_data(sampling_rate)
-        self.channel_panel.update_channel_list()
-        self.update_callback()
+    def load_data(self, filetypes=None):
+        """
+        Load data using a file dialog and update the UI.
+        
+        Args:
+            filetypes (list): List of tuples containing file type descriptions and patterns
+        """
+        if filetypes is None:
+            filetypes = [
+                ('All supported files', '*.npy;*.rhd'),
+                ('NumPy files', '*.npy'),
+                ('Intan RHD files', '*.rhd'),
+                ('All files', '*.*')
+            ]
+        
+        file_path = filedialog.askopenfilename(
+            title="Select Data File",
+            filetypes=filetypes
+        )
+        
+        if file_path:
+            try:
+                sampling_rate = self.filter_panel.get_sampling_rate()
+                self.data_manager.load_data(sampling_rate, file_path)
+                self.channel_panel.update_channel_list()
+                self.update_callback()
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to load data: {str(e)}")
 
     def save_statistics_to_excel(self):
         """Save the current channel statistics to an Excel file."""
@@ -125,13 +158,16 @@ class ControlPanel(ttk.Frame):
         Args:
             event: Optional event data (not used).
         """
-        data_dict = self.data_manager.get_data()
-        self.plot_panel.update_plot(data_dict)
-        self.statistics_panel.update_statistics(
-            channel_statistics=self.data_manager.channel_statistics,
-            peak_statistics=self.data_manager.peak_statistics,
-            channel_mapping=self.data_manager.channel_mapping
-        )
+        if hasattr(self, 'data_manager'):  # Only update if data_manager exists
+            data_dict = self.data_manager.get_data()
+            if hasattr(self, 'plot_panel'):  # Only update if plot_panel exists
+                self.plot_panel.update_plot(data_dict)
+            if hasattr(self, 'statistics_panel'):  # Only update if statistics_panel exists
+                self.statistics_panel.update_statistics(
+                    channel_statistics=self.data_manager.channel_statistics,
+                    peak_statistics=self.data_manager.peak_statistics,
+                    channel_mapping=self.data_manager.channel_mapping
+                )
 
     def save_comprehensive_peak_data(self):
         """Save comprehensive peak data to a CSV file."""

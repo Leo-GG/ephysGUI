@@ -35,34 +35,35 @@ class DataManager:
             update_callback (function): Callback function to update the GUI.
         """
         self.update_callback = update_callback
-        self.data = None
-        self.time = None
-        self.sampling_rate = None
-        self.artifacts = None
-        self.peaks = None
-        self.peak_windows = None
-        self.avg_peak_windows = None
-        self.channel_mapping = []
-        self.channel_statistics = None
-        self.peak_statistics = None
-        self.selected_channels = []
+        self.clear_all_data()
 
-    def load_data(self, sampling_rate):
+    def load_data(self, sampling_rate: float, file_path: str):
         """
-        Load data from a file and initialize related attributes.
-
+        Load data from a file and initialize data structures.
+        
         Args:
-            sampling_rate (float): Sampling rate of the data in Hz.
+            sampling_rate (float): The sampling rate in Hz
+            file_path (str): Path to the data file
         """
-        file_path = filedialog.askopenfilename(filetypes=[("NumPy files", "*.npy")])
-        if file_path:
+        try:
             self.data, self.time = load_data(file_path)
             self.sampling_rate = sampling_rate
-            self.time = self.time / self.sampling_rate
-            self.channel_mapping = list(range(self.data.shape[1]))
-            self.selected_channels = self.channel_mapping.copy()
-            self.update_channel_statistics()
-            self.update_callback()
+            self.original_data = self.data.copy()
+            self.original_time = self.time.copy()
+            
+            # Initialize channel mapping
+            self.channel_mapping = {i: f'Channel {i+1}' for i in range(self.data.shape[1])}
+            
+            # Reset all processed data
+            self.filtered_data = None
+            self.artifacts = None
+            self.peaks = None
+            self.peak_windows = None
+            self.channel_statistics = None
+            self.peak_statistics = None
+            
+        except Exception as e:
+            raise Exception(f"Error loading data: {str(e)}")
 
     def update_channel_statistics(self):
         """
